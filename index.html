@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset=utf-8>
+    <title>My first three.js app</title>
+    <style>
+        body {
+            margin: 0;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%
+        }
+    </style>
+</head>
+
+<body>
+    <script src="js/three.js"></script>
+    <script src="js/GLTFLoader.js"></script>
+    <script src="js/OrbitControls.js"></script>
+    <script src="js/Sky.js"></script>
+    <script>
+        var scene = new THREE.Scene();
+        var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 10000);
+        var controls = new THREE.OrbitControls(camera);
+        /* var helper = new THREE.CameraHelper(camera);
+        scene.add(helper); */
+
+        // envmap
+        /* var path = 'textures/skybox/';
+        var format = '.jpg';
+        var envMap = new THREE.CubeTextureLoader().load([
+            path + 'px' + format, path + 'nx' + format,
+            path + 'py' + format, path + 'ny' + format,
+            path + 'pz' + format, path + 'nz' + format
+        ]);
+        scene.background = envMap; */
+        //var jsonLoader = new THREE.JSONLoader();
+
+
+        var renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap; // default THREE.PCFShadowMap
+        document.body.appendChild(renderer.domElement);
+
+        var light2 = new THREE.AmbientLight(0x404040); // soft white light
+        scene.add(light2);
+
+        var light = new THREE.DirectionalLight(0xffffff, 3);
+        light.position.set(450, 450, 450);
+        light.castShadow = true;
+        scene.add(light);
+        //Set up shadow properties for the light
+        light.shadow.mapSize.width = 512;  // default
+        light.shadow.mapSize.height = 512; // default
+        light.shadow.camera.near = 0.5;       // default
+        light.shadow.camera.far = 500      // default
+
+        // Add Sky
+        sky = new THREE.Sky();
+        sky.scale.setScalar(450000);
+        scene.add(sky);
+
+        // Add Sun Helper
+        sunSphere = new THREE.Mesh(
+            new THREE.SphereBufferGeometry(20000, 16, 8),
+            new THREE.MeshBasicMaterial({ color: 0xffffff })
+        );
+        sunSphere.position.y = - 700000;
+        sunSphere.visible = false;
+        scene.add(sunSphere);
+
+        var distance = 400000;
+
+        var effectController = {
+            turbidity: 10,
+            rayleigh: 2,
+            mieCoefficient: 0.005,
+            mieDirectionalG: 0.8,
+            luminance: 1,
+            inclination: 0.49, // elevation / inclination
+            azimuth: 0.25, // Facing front,
+            sun: ! true
+        };
+
+        var uniforms = sky.material.uniforms;
+        uniforms.turbidity.value = effectController.turbidity;
+        uniforms.rayleigh.value = effectController.rayleigh;
+        uniforms.luminance.value = effectController.luminance;
+        uniforms.mieCoefficient.value = effectController.mieCoefficient;
+        uniforms.mieDirectionalG.value = effectController.mieDirectionalG;
+        var theta = Math.PI * (effectController.inclination - 0.5);
+        var phi = 2 * Math.PI * (effectController.azimuth - 0.5);
+        sunSphere.position.x = distance * Math.cos(phi);
+        sunSphere.position.y = distance * Math.sin(phi) * Math.sin(theta);
+        sunSphere.position.z = distance * Math.sin(phi) * Math.cos(theta);
+        sunSphere.visible = effectController.sun;
+        uniforms.sunPosition.value.copy(sunSphere.position);
+
+
+        var geometry = new THREE.BoxGeometry(1, 1, 1);
+        var material = new THREE.MeshPhongMaterial({ color: 0x00ff00 });
+        var cube = new THREE.Mesh(geometry, material);
+        scene.add(cube);
+
+        camera.position.set(500, 500, 500);
+        //camera.position.y = 5;
+        camera.lookAt(0, 0, 0);
+        controls.update();
+
+        var helper = new THREE.CameraHelper(light.shadow.camera);
+        scene.add(helper);
+
+        //var r = 0;
+
+        //Create a plane that receives shadows (but does not cast them)
+        /* var planeGeometry = new THREE.PlaneBufferGeometry(1320, 1320, 1332, 1332);
+        var planeMaterial = new THREE.MeshStandardMaterial({ color: 0x00ff00 })
+        var plane = new THREE.Mesh(planeGeometry, planeMaterial);
+        plane.rotation.x = 5;
+        plane.receiveShadow = true;
+        scene.add(plane); */
+
+
+        // Instantiate a loader
+        var loader = new THREE.GLTFLoader();
+
+        /* // Optional: Provide a DRACOLoader instance to decode compressed mesh data
+        THREE.DRACOLoader.setDecoderPath( '/examples/js/libs/draco' );
+        loader.setDRACOLoader( new THREE.DRACOLoader() ); */
+
+        // Load a glTF resource
+        loader.load(
+            // resource URL
+            '/models/boat+sea/nosky.gltf',
+            // called when the resource is loaded
+            function (gltf) {
+
+                //gltf.scene.rotation.z = 180;
+
+                gltf.scene.castShadow = true;
+                scene.add(gltf.scene);
+
+                gltf.animations; // Array<THREE.AnimationClip>
+                gltf.scene; // THREE.Scene
+                gltf.scenes; // Array<THREE.Scene>
+                gltf.cameras; // Array<THREE.Camera>
+                gltf.asset; // Object
+
+            },
+            // called while loading is progressing
+            function (xhr) {
+
+                console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+
+            },
+            // called when loading has errors
+            function (error) {
+
+                console.log('An error happened');
+
+            }
+        );
+
+        //var delta = 0;
+
+        var animate = function () {
+            requestAnimationFrame(animate);
+
+            /* delta += 0.01;
+            
+            //camera.lookAt = light.position;
+            camera.position.x = Math.sin(delta) * 2000;
+            camera.position.z = Math.cos(delta) * 2000; */
+
+            cube.rotation.x += 0.01;
+            cube.rotation.y += 0.01;
+
+            renderer.render(scene, camera);
+        };
+
+        animate();</script>
+</body>
+
+</html>
