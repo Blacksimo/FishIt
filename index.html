@@ -20,25 +20,18 @@
     <script src="js/three.js"></script>
     <script src="js/GLTFLoader.js"></script>
     <script src="js/OrbitControls.js"></script>
+    <script src="js/Water2.js"></script>
+    <script src="js/Reflector.js"></script>
+    <script src="js/Refractor.js"></script>
     <script src="js/Sky.js"></script>
     <script>
         var scene = new THREE.Scene();
         var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 10000);
         var controls = new THREE.OrbitControls(camera);
-        /* var helper = new THREE.CameraHelper(camera);
-        scene.add(helper); */
 
-        // envmap
-        /* var path = 'textures/skybox/';
-        var format = '.jpg';
-        var envMap = new THREE.CubeTextureLoader().load([
-            path + 'px' + format, path + 'nx' + format,
-            path + 'py' + format, path + 'ny' + format,
-            path + 'pz' + format, path + 'nz' + format
-        ]);
-        scene.background = envMap; */
-        //var jsonLoader = new THREE.JSONLoader();
-
+        ///////////////////
+        //LIGHTS & SHADOWS
+        ///////////////////
 
         var renderer = new THREE.WebGLRenderer();
         renderer.setSize(window.innerWidth, window.innerHeight);
@@ -58,6 +51,34 @@
         light.shadow.mapSize.height = 512; // default
         light.shadow.camera.near = 0.5;       // default
         light.shadow.camera.far = 500      // default
+
+        ///////////////////
+        //WATER
+        ///////////////////
+
+        var params = {
+            color: '#ffffff',
+            scale: 4,
+            flowX: 1,
+            flowY: 1
+        };
+
+        var waterGeometry = new THREE.PlaneBufferGeometry(2000, 2000);
+        water = new THREE.Water(waterGeometry, {
+            color: params.color,
+            scale: params.scale,
+            flowDirection: new THREE.Vector2(params.flowX, params.flowY),
+            textureWidth: 1024,
+            textureHeight: 1024
+        });
+        water.position.y = -11;
+        water.rotation.x = Math.PI * - 0.5;
+        scene.add(water);
+
+
+        ///////////////////
+        //SKY
+        ///////////////////
 
         // Add Sky
         sky = new THREE.Sky();
@@ -100,13 +121,17 @@
         sunSphere.visible = effectController.sun;
         uniforms.sunPosition.value.copy(sunSphere.position);
 
+        ///////////////////
+        //CAMERA
+        ///////////////////
 
-        var geometry = new THREE.BoxGeometry(1, 1, 1);
+
+        /* var geometry = new THREE.BoxGeometry(1, 1, 1);
         var material = new THREE.MeshPhongMaterial({ color: 0x00ff00 });
         var cube = new THREE.Mesh(geometry, material);
-        scene.add(cube);
+        scene.add(cube); */
 
-        camera.position.set(500, 500, 500);
+        camera.position.set(159, 10, 552);
         //camera.position.y = 5;
         camera.lookAt(0, 0, 0);
         controls.update();
@@ -125,6 +150,11 @@
         scene.add(plane); */
 
 
+        ///////////////////
+        //3D MODELS
+        ///////////////////
+
+
         // Instantiate a loader
         var loader = new THREE.GLTFLoader();
 
@@ -135,7 +165,7 @@
         // Load a glTF resource
         loader.load(
             // resource URL
-            '/models/boat+sea/nosky.gltf',
+            '/models/boat+sea/noskynosea.gltf',
             // called when the resource is loaded
             function (gltf) {
 
@@ -176,9 +206,8 @@
             camera.position.x = Math.sin(delta) * 2000;
             camera.position.z = Math.cos(delta) * 2000; */
 
-            cube.rotation.x += 0.01;
-            cube.rotation.y += 0.01;
-
+            /* cube.rotation.x += 0.01;
+            cube.rotation.y += 0.01;*/
             renderer.render(scene, camera);
         };
 
