@@ -2,8 +2,9 @@
 <html>
 
 <head>
+    <link rel='icon' type='image/x-icon' href='/favicon.ico' />
     <meta charset=utf-8>
-    <title>My first three.js app</title>
+    <title>FishIT</title>
     <style>
         body {
             margin: 0;
@@ -26,7 +27,8 @@
     <script src="js/Sky.js"></script>
     <script>
         var scene = new THREE.Scene();
-        var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 10000);
+        scene.fog = new THREE.Fog(0xcce0ff, 500, 10000);
+        var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 100000);
         var controls = new THREE.OrbitControls(camera);
 
         ///////////////////
@@ -43,7 +45,7 @@
         scene.add(light2);
 
         var light = new THREE.DirectionalLight(0xffffff, 3);
-        light.position.set(450, 450, 450);
+        light.position.set(400, 400, 400);
         light.castShadow = true;
         scene.add(light);
         //Set up shadow properties for the light
@@ -171,14 +173,27 @@
 
                 //gltf.scene.rotation.z = 180;
 
+
                 gltf.scene.castShadow = true;
+
+                //gltf.scene.position.y = 550;
+
+                //gltf.scene.scale.set(0.05, 0.05, 0.05);
+
+
+                /* var material = materials[ 0 ];
+		        var object = new THREE.Mesh( geometry, material );
+                object.castShadow = true;
+                object.position.y = 550;
+                object.scale.set(0.05, 0.05, 0.05);*/
+
                 scene.add(gltf.scene);
 
-                gltf.animations; // Array<THREE.AnimationClip>
+                /* gltf.animations; // Array<THREE.AnimationClip>
                 gltf.scene; // THREE.Scene
                 gltf.scenes; // Array<THREE.Scene>
                 gltf.cameras; // Array<THREE.Camera>
-                gltf.asset; // Object
+                gltf.asset; // Object */
 
             },
             // called while loading is progressing
@@ -195,6 +210,107 @@
             }
         );
 
+        loader.load(
+            // resource URL
+            '/models/rod/scene.gltf',
+            // called when the resource is loaded
+            function (gltf) {
+
+                //gltf.scene.rotation.z = 180;
+
+                gltf.scene.position.set(170, 10, 570);
+                gltf.scene.scale.set(5, 5, 5);
+                gltf.scene.castShadow = true;
+
+                //gltf.scene.position.y = 550;
+
+                //gltf.scene.scale.set(0.05, 0.05, 0.05);
+
+
+                /* var material = materials[ 0 ];
+		        var object = new THREE.Mesh( geometry, material );
+                object.castShadow = true;
+                object.position.y = 550;
+                object.scale.set(0.05, 0.05, 0.05);*/
+
+                scene.add(gltf.scene);
+
+                /* gltf.animations; // Array<THREE.AnimationClip>
+                gltf.scene; // THREE.Scene
+                gltf.scenes; // Array<THREE.Scene>
+                gltf.cameras; // Array<THREE.Camera>
+                gltf.asset; // Object */
+
+            },
+            // called while loading is progressing
+            function (xhr) {
+
+                console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+
+            },
+            // called when loading has errors
+            function (error) {
+
+                console.log('An error happened');
+
+            }
+        );
+
+        loader.load(
+            // resource URL
+            '/models/fish/scene.gltf',
+            // called when the resource is loaded
+            function (gltf) {
+
+                gltf.scene.scale.set(0.05, 0.05, 0.05);
+                gltf.scene.castShadow = true;
+
+                for (var i = 0; i < 100; i++) {
+
+                    //gltf.scene.rotation.z = 180;
+
+                    x = THREE.Math.randFloatSpread(1000);
+                    z = THREE.Math.randFloatSpread(1000);
+
+                    gltf.scene.position.set(x, -20, z);
+                    console.log(gltf.scene.position);
+
+
+                    //gltf.scene.position.y = 550;
+
+                    //gltf.scene.scale.set(0.05, 0.05, 0.05);
+
+
+                    /* var material = materials[ 0 ];
+                    var object = new THREE.Mesh( geometry, material );
+                    object.castShadow = true;
+                    object.position.y = 550;
+                    object.scale.set(0.05, 0.05, 0.05);*/
+
+                    scene.add(gltf.scene);
+
+                }
+
+                /* gltf.animations; // Array<THREE.AnimationClip>
+                gltf.scene; // THREE.Scene
+                gltf.scenes; // Array<THREE.Scene>
+                gltf.cameras; // Array<THREE.Camera>
+                gltf.asset; // Object */
+
+            },
+            // called while loading is progressing
+            function (xhr) {
+
+                console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+
+            },
+            // called when loading has errors
+            function (error) {
+
+                console.log('An error happened');
+
+            }
+        );
         //var delta = 0;
 
         var animate = function () {
