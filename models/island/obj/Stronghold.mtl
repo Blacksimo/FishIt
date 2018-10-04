@@ -1,0 +1,35 @@
+# MTL written from Stronghold.obj
+newmtl Environment
+Kd 0.588 0.588 0.588
+Ns 2
+d 1
+illum 2
+Ka 0 0 0
+Ks 0 0 0
+map_Kd Stronghold.fbm\texture_environment.jpg
+map_D Stronghold.fbm\texture_environment_opacity.jpg
+newmtl Fortress
+Kd 0.588 0.588 0.588
+Ns 2
+d 1
+illum 2
+Ka 0 0 0
+Ks 0 0 0
+map_Kd Stronghold.fbm\texture_building.jpg
+map_D Stronghold.fbm\texture_building_opacity.jpg
+newmtl Sand
+Kd 0.588 0.588 0.588
+Ns 2
+d 1
+illum 2
+Ka 0 0 0
+Ks 0 0 0
+map_Kd Stronghold.fbm\texture_sand.jpg
+newmtl Sky
+Kd 0.588235 0.588235 0.588235
+Ns 2
+d 1
+illum 2
+Ka 0 0 0
+Ks 0 0 0
+map_Kd Stronghold.fbm\texture_sky.jpg

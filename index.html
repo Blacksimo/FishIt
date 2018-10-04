@@ -25,11 +25,73 @@
     <script src="js/Reflector.js"></script>
     <script src="js/Refractor.js"></script>
     <script src="js/Sky.js"></script>
+    <script src="js/libs/inflate.min.js"></script>
+    <script src="js/loaders/MTLLoader.js"></script>
+    <script src="js/loaders/OBJLoader.js"></script>
+    <script src="js/loaders/DDSLoader.js"></script>
+    <script src="js/loaders/FBXLoader.js"></script>
+    <script src="js/PointerLockControls.js"></script>
     <script>
+
+        // Converts from degrees to radians.
+        Math.radians = function(degrees) {
+            return degrees * Math.PI / 180;
+        };
+ 
+        // Converts from radians to degrees.
+        Math.degrees = function(radians) {
+            return radians * 180 / Math.PI;
+        };
+        
+        // OGGETTI
+        var pesce = [];
+        var boat;
+        var boatFlag = false;
+
+
+
+
         var scene = new THREE.Scene();
         scene.fog = new THREE.Fog(0xcce0ff, 500, 10000);
+
+        ///////////////////
+        //CAMERA
+        ///////////////////
+
         var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 100000);
+        camera.position.set(159, 10, 552);
         var controls = new THREE.OrbitControls(camera);
+        controls.update();
+        //controls.enableZoom = false;
+        //controls.enablePan = false;
+        //controls.enabled = false;
+
+
+        /* camera.lookAt(0,0,0);
+        window.addEventListener('mousemove', function(e){
+            var mouse3D = new THREE.Vector3(
+            (( event.clientX / window.innerWidth ) * 2 - 1)*300,
+            (- ( event.clientY / window.innerHeight ) * 2 + 1)*300,
+            0.5 );
+            camera.lookAt(mouse3D);
+        }); */
+
+
+
+
+        /* var mouseX;
+        var mouseY;
+        window.addEventListener('mouseMove', function(event){
+            mouseX = ( event.clientX / window.innerWidth ) * 2 - 1;
+            mouseY = - ( event.clientY / window.innerHeight ) * 2 + 1;
+            camera.position.x += ( mouseX - camera.position.x ) ;
+            camera.position.y += ( - mouseY - camera.position.y ) ;
+            camera.lookAt( scene.position );
+        }) */
+
+        /* var looking = new THREE.PointerLockControls( camera );
+        scene.add( looking.getObject() ); */
+        //looking.enabled = true; // Turns on camera rotating with mouse
 
         ///////////////////
         //LIGHTS & SHADOWS
@@ -133,10 +195,10 @@
         var cube = new THREE.Mesh(geometry, material);
         scene.add(cube); */
 
-        camera.position.set(159, 10, 552);
+        
         //camera.position.y = 5;
-        camera.lookAt(0, 0, 0);
-        controls.update();
+        //camera.lookAt(mouse3D);
+        
 
         var helper = new THREE.CameraHelper(light.shadow.camera);
         scene.add(helper);
@@ -156,18 +218,37 @@
         //3D MODELS
         ///////////////////
 
+        var isola;
+        var onProgress = function ( xhr ) {
+					if ( xhr.lengthComputable ) {
+						var percentComplete = xhr.loaded / xhr.total * 100;
+						console.log( Math.round( percentComplete, 2 ) + '% downloaded' );
+					}
+				};
+				var onError = function ( xhr ) { };
+				THREE.Loader.Handlers.add( /\.dds$/i, new THREE.DDSLoader() );
+				new THREE.MTLLoader()
+					.setPath( 'models/island/obj/' )
+					.load( 'Stronghold.mtl', function ( materials ) {
+						materials.preload();
+						new THREE.OBJLoader()
+							.setMaterials( materials )
+							.setPath( 'models/island/obj/' )
+							.load( 'Stronghold.obj', function ( object ) {
+								
+                                object.scale.set(100,100,100);
+                                object.name = "island"
+                                 
+								scene.add( object );
+							}, onProgress, onError );
+					} );
 
-        // Instantiate a loader
         var loader = new THREE.GLTFLoader();
 
-        /* // Optional: Provide a DRACOLoader instance to decode compressed mesh data
-        THREE.DRACOLoader.setDecoderPath( '/examples/js/libs/draco' );
-        loader.setDRACOLoader( new THREE.DRACOLoader() ); */
 
-        // Load a glTF resource
         loader.load(
             // resource URL
-            '/models/boat+sea/noskynosea.gltf',
+            '/models/boat/scene.gltf',
             // called when the resource is loaded
             function (gltf) {
 
@@ -175,10 +256,14 @@
 
 
                 gltf.scene.castShadow = true;
+                gltf.scene.name = "boat";
 
-                //gltf.scene.position.y = 550;
 
-                //gltf.scene.scale.set(0.05, 0.05, 0.05);
+                
+                gltf.scene.position.set  (270, -8, 600)
+                gltf.scene.scale.set(10,10,10)
+                //gltf.scene.rotation.y = 0.78
+                
 
 
                 /* var material = materials[ 0 ];
@@ -186,8 +271,10 @@
                 object.castShadow = true;
                 object.position.y = 550;
                 object.scale.set(0.05, 0.05, 0.05);*/
+                boat = gltf.scene;
 
-                scene.add(gltf.scene);
+                scene.add(boat);
+                boatFlag = true;
 
                 /* gltf.animations; // Array<THREE.AnimationClip>
                 gltf.scene; // THREE.Scene
@@ -200,6 +287,9 @@
             function (xhr) {
 
                 console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+                if (xhr.loaded / xhr.total == 1){
+                    
+                }
 
             },
             // called when loading has errors
@@ -273,7 +363,8 @@
                     z = THREE.Math.randFloatSpread(1000);
 
                     gltf.scene.position.set(x, -20, z);
-                    console.log(gltf.scene.position);
+                    //console.log(gltf.scene.position);
+                    gltf.scene.name = "pesce" + i.toString();
 
 
                     //gltf.scene.position.y = 550;
@@ -287,7 +378,9 @@
                     object.position.y = 550;
                     object.scale.set(0.05, 0.05, 0.05);*/
 
-                    scene.add(gltf.scene);
+                    pesce[i] = THREE.Object3D.prototype.clone.call(gltf.scene)
+
+                    scene.add(pesce[i]);
 
                 }
 
@@ -312,10 +405,44 @@
             }
         );
         //var delta = 0;
+            
+        ///////////////////
+        //FISH MOVEMENT
+        ///////////////////
+        
+        function movimentoPesce(oggetto, angolo){
+            setTimeout(function(){
+                if (oggetto.rotation.y != angolo){
+                    if (Math.sign(angolo) == 1){
+                        oggetto.rotation.y += 0.017;
+                    }
+                    else {
+                        oggetto.rotation.y -= 0.017;
+                    }
+                }
+            }, 100);
+        }
+
 
         var animate = function () {
             requestAnimationFrame(animate);
 
+            var time = performance.now() * 0.001;
+            if (boatFlag){
+                boat.rotation.x = Math.sin(time) * 0.015;
+                //boat.position.y = Math.sin(time) * 20 + 5;
+            }
+            setTimeout(function(){
+                for (var p = 0; p < pesce.length; p++){
+                //pesce[p].position.x -= 0.5;
+                movimentoPesce(pesce[p], Math.radians(Math.floor(Math.random() * 360) - 180));
+                pesce[p].position.x-=0.3
+                }
+            }, 100);
+            //.movimentoPesce(Math.radians(Math.floor(Math.random() * 360) - 180));
+
+
+            //camera.lookAt(mouse3D);
             /* delta += 0.01;
             
             //camera.lookAt = light.position;
