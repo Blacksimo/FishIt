@@ -32,21 +32,21 @@
     <script src="js/loaders/FBXLoader.js"></script>
     <script src="js/PointerLockControls.js"></script>
     <script>
-
         // Converts from degrees to radians.
-        Math.radians = function(degrees) {
+        Math.radians = function (degrees) {
             return degrees * Math.PI / 180;
         };
- 
+
         // Converts from radians to degrees.
-        Math.degrees = function(radians) {
+        Math.degrees = function (radians) {
             return radians * 180 / Math.PI;
         };
-        
+
         // OGGETTI
         var pesce = [];
         var boat;
         var boatFlag = false;
+        var fishFlag = false;
 
 
 
@@ -59,7 +59,8 @@
         ///////////////////
 
         var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 100000);
-        camera.position.set(159, 10, 552);
+        //camera.position.set(159, 10, 552);
+        camera.position.set(-43, 872, 506);
         var controls = new THREE.OrbitControls(camera);
         controls.update();
         //controls.enableZoom = false;
@@ -111,10 +112,10 @@
         light.castShadow = true;
         scene.add(light);
         //Set up shadow properties for the light
-        light.shadow.mapSize.width = 512;  // default
+        light.shadow.mapSize.width = 512; // default
         light.shadow.mapSize.height = 512; // default
-        light.shadow.camera.near = 0.5;       // default
-        light.shadow.camera.far = 500      // default
+        light.shadow.camera.near = 0.5; // default
+        light.shadow.camera.far = 500 // default
 
         ///////////////////
         //WATER
@@ -136,7 +137,7 @@
             textureHeight: 1024
         });
         water.position.y = -11;
-        water.rotation.x = Math.PI * - 0.5;
+        water.rotation.x = Math.PI * -0.5;
         scene.add(water);
 
 
@@ -152,9 +153,11 @@
         // Add Sun Helper
         sunSphere = new THREE.Mesh(
             new THREE.SphereBufferGeometry(20000, 16, 8),
-            new THREE.MeshBasicMaterial({ color: 0xffffff })
+            new THREE.MeshBasicMaterial({
+                color: 0xffffff
+            })
         );
-        sunSphere.position.y = - 700000;
+        sunSphere.position.y = -700000;
         sunSphere.visible = false;
         scene.add(sunSphere);
 
@@ -168,7 +171,7 @@
             luminance: 1,
             inclination: 0.49, // elevation / inclination
             azimuth: 0.25, // Facing front,
-            sun: ! true
+            sun: !true
         };
 
         var uniforms = sky.material.uniforms;
@@ -195,10 +198,10 @@
         var cube = new THREE.Mesh(geometry, material);
         scene.add(cube); */
 
-        
+
         //camera.position.y = 5;
         //camera.lookAt(mouse3D);
-        
+
 
         var helper = new THREE.CameraHelper(light.shadow.camera);
         scene.add(helper);
@@ -219,29 +222,29 @@
         ///////////////////
 
         var isola;
-        var onProgress = function ( xhr ) {
-					if ( xhr.lengthComputable ) {
-						var percentComplete = xhr.loaded / xhr.total * 100;
-						console.log( Math.round( percentComplete, 2 ) + '% downloaded' );
-					}
-				};
-				var onError = function ( xhr ) { };
-				THREE.Loader.Handlers.add( /\.dds$/i, new THREE.DDSLoader() );
-				new THREE.MTLLoader()
-					.setPath( 'models/island/obj/' )
-					.load( 'Stronghold.mtl', function ( materials ) {
-						materials.preload();
-						new THREE.OBJLoader()
-							.setMaterials( materials )
-							.setPath( 'models/island/obj/' )
-							.load( 'Stronghold.obj', function ( object ) {
-								
-                                object.scale.set(100,100,100);
-                                object.name = "island"
-                                 
-								scene.add( object );
-							}, onProgress, onError );
-					} );
+        var onProgress = function (xhr) {
+            if (xhr.lengthComputable) {
+                var percentComplete = xhr.loaded / xhr.total * 100;
+                console.log(Math.round(percentComplete, 2) + '% downloaded');
+            }
+        };
+        var onError = function (xhr) {};
+        THREE.Loader.Handlers.add(/\.dds$/i, new THREE.DDSLoader());
+        new THREE.MTLLoader()
+            .setPath('models/island/obj/')
+            .load('Stronghold.mtl', function (materials) {
+                materials.preload();
+                new THREE.OBJLoader()
+                    .setMaterials(materials)
+                    .setPath('models/island/obj/')
+                    .load('Stronghold.obj', function (object) {
+
+                        object.scale.set(100, 100, 100);
+                        object.name = "island"
+
+                        scene.add(object);
+                    }, onProgress, onError);
+            });
 
         var loader = new THREE.GLTFLoader();
 
@@ -259,11 +262,11 @@
                 gltf.scene.name = "boat";
 
 
-                
-                gltf.scene.position.set  (270, -8, 600)
-                gltf.scene.scale.set(10,10,10)
+
+                gltf.scene.position.set(270, -8, 600)
+                gltf.scene.scale.set(10, 10, 10)
                 //gltf.scene.rotation.y = 0.78
-                
+
 
 
                 /* var material = materials[ 0 ];
@@ -287,8 +290,8 @@
             function (xhr) {
 
                 console.log((xhr.loaded / xhr.total * 100) + '% loaded');
-                if (xhr.loaded / xhr.total == 1){
-                    
+                if (xhr.loaded / xhr.total == 1) {
+
                 }
 
             },
@@ -366,6 +369,8 @@
                     //console.log(gltf.scene.position);
                     gltf.scene.name = "pesce" + i.toString();
 
+                    gltf.scene.rotation.y = Math.random();
+
 
                     //gltf.scene.position.y = 550;
 
@@ -381,6 +386,7 @@
                     pesce[i] = THREE.Object3D.prototype.clone.call(gltf.scene)
 
                     scene.add(pesce[i]);
+                    //fishFlag = true;
 
                 }
 
@@ -405,56 +411,112 @@
             }
         );
         //var delta = 0;
-            
+
         ///////////////////
         //FISH MOVEMENT
         ///////////////////
-        
-        function movimentoPesce(oggetto, angolo){
-            setTimeout(function(){
-                if (oggetto.rotation.y != angolo){
-                    if (Math.sign(angolo) == 1){
-                        oggetto.rotation.y += 0.017;
+
+        var xAxis = new THREE.Vector3(1, 0, 0);
+
+        function movimentoPesce(oggetto) {
+            /* var randDegrees;
+            var randRadians; */
+            fishFlag = false;
+            for (var i = 0; i < oggetto.length; i++) {
+                var randDegrees = Math.floor(Math.random() * 360) - 180;
+                var randRadians = Math.radians(randDegrees);
+                var x = 2 * Math.cos(randRadians);
+                var z = 2 * Math.sin(randRadians);
+                if (oggetto[i].position.x + x > 500 || oggetto[i].position.x + x < -500 || oggetto[i].position.z + z >
+                    500 || oggetto[i].position.z + z < -500) {
+                    continue;
+                }
+                
+                if (randRadians > oggetto[i].rotation.y) {
+                    while (randRadians > oggetto[i].rotation.y) {
+                        //setTimeout(function () {
+                            oggetto[i].rotation.y += 0.017;
+                            oggetto[i].translateOnAxis(xAxis, -0.5);
+                        //}, 100);
                     }
-                    else {
-                        oggetto.rotation.y -= 0.017;
+                } else {
+                    while (randRadians < oggetto[i].rotation.y) {
+                        //setTimeout(function () {
+                            oggetto[i].rotation.y -= 0.017;
+                            oggetto[i].translateOnAxis(xAxis, -0.5);
+                        //}, 100);
                     }
                 }
-            }, 100);
+            
+
+            }
+            fishFlag = true;
         }
 
+
+
+
+        /* setTimeout(function(){
+                for (var p = 0; p < pesce.length; p++){
+
+                    pesce[p].rotateY(Math.radians(Math.floor(Math.random() * 360) - 180));
+                    pesce[p].translateOnAxis(xAxis, 10);
+                //pesce[p].position.x -= 0.5;
+                //movimentoPesce(pesce[p], Math.radians(Math.floor(Math.random() * 360) - 180));
+                //pesce[p].position.x-=0.3
+                }
+                if (boatFlag){
+                boat.rotateY(0.017);
+                boat.translateOnAxis(diocane, 10);
+                }
+            }, 3000); */
+
+        if (fishFlag) {
+            setTimeout(function(){movimentoPesce(pesce);
+            }, 100);
+            
+        }
+
+        function polarToCartesian(radius, angle) {
+            return [radius * Math.cos(angle), radius * Math.sin(angle)]
+        }
 
         var animate = function () {
             requestAnimationFrame(animate);
 
+            /* for (var p = 0; p < pesce.length; p++) {
+                movimentoPesce(pesce[p], Math.radians(Math.floor(Math.random() * 360) - 180));
+            } */
+            /* if (fishFlag) {
+                setTimeout(function(){movimentoPesce(pesce);
+                }, 1000);
+                
+            } */
+
             var time = performance.now() * 0.001;
-            if (boatFlag){
+            if (boatFlag) {
                 boat.rotation.x = Math.sin(time) * 0.015;
+                //movimentoPesce(boat, 0.17)
                 //boat.position.y = Math.sin(time) * 20 + 5;
             }
-            setTimeout(function(){
-                for (var p = 0; p < pesce.length; p++){
-                //pesce[p].position.x -= 0.5;
-                movimentoPesce(pesce[p], Math.radians(Math.floor(Math.random() * 360) - 180));
-                pesce[p].position.x-=0.3
-                }
-            }, 100);
+
             //.movimentoPesce(Math.radians(Math.floor(Math.random() * 360) - 180));
 
 
             //camera.lookAt(mouse3D);
             /* delta += 0.01;
             
-            //camera.lookAt = light.position;
-            camera.position.x = Math.sin(delta) * 2000;
-            camera.position.z = Math.cos(delta) * 2000; */
+                //camera.lookAt = light.position;
+                camera.position.x = Math.sin(delta) * 2000;
+                camera.position.z = Math.cos(delta) * 2000; */
 
             /* cube.rotation.x += 0.01;
             cube.rotation.y += 0.01;*/
             renderer.render(scene, camera);
         };
 
-        animate();</script>
+        animate();
+    </script>
 </body>
 
 </html>
