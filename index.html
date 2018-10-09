@@ -59,24 +59,24 @@
         ///////////////////
 
         var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 100000);
-        //camera.position.set(159, 10, 552);
-        camera.position.set(-43, 872, 506);
+        camera.position.set(159, 10, 552);
+        // camera.position.set(-43, 872, 506);
         var controls = new THREE.OrbitControls(camera);
         controls.update();
-        //controls.enableZoom = false;
+        // controls.enableZoom = false;
         //controls.enablePan = false;
         //controls.enabled = false;
 
 
-        /* camera.lookAt(0,0,0);
-        window.addEventListener('mousemove', function(e){
-            var mouse3D = new THREE.Vector3(
-            (( event.clientX / window.innerWidth ) * 2 - 1)*300,
-            (- ( event.clientY / window.innerHeight ) * 2 + 1)*300,
-            0.5 );
-            camera.lookAt(mouse3D);
-        }); */
-
+        // camera.lookAt(0,0,0);
+        // window.addEventListener('mousemove', function(e){
+        //     var mouse3D = new THREE.Vector3(
+        //     (( event.clientX / window.innerWidth ) * 2 - 1)*300,
+        //     (- ( event.clientY / window.innerHeight ) * 2 + 1)*300,
+        //     0.5 );
+        //     camera.lookAt(mouse3D);
+        // });
+        //
 
 
 
@@ -221,33 +221,61 @@
         //3D MODELS
         ///////////////////
 
-        var isola;
-        var onProgress = function (xhr) {
-            if (xhr.lengthComputable) {
-                var percentComplete = xhr.loaded / xhr.total * 100;
-                console.log(Math.round(percentComplete, 2) + '% downloaded');
-            }
-        };
-        var onError = function (xhr) {};
-        THREE.Loader.Handlers.add(/\.dds$/i, new THREE.DDSLoader());
-        new THREE.MTLLoader()
-            .setPath('models/island/obj/')
-            .load('Stronghold.mtl', function (materials) {
-                materials.preload();
-                new THREE.OBJLoader()
-                    .setMaterials(materials)
-                    .setPath('models/island/obj/')
-                    .load('Stronghold.obj', function (object) {
-
-                        object.scale.set(100, 100, 100);
-                        object.name = "island"
-
-                        scene.add(object);
-                    }, onProgress, onError);
-            });
 
         var loader = new THREE.GLTFLoader();
 
+        loader.load(
+            // resource URL
+            '/models/lighthouse/model.gltf',
+            // called when the resource is loaded
+            function (gltf) {
+
+                //gltf.scene.rotation.z = 180;
+
+
+                gltf.scene.castShadow = true;
+                gltf.scene.name = "lighthouse";
+
+
+
+                // gltf.scene.position.set(270, -8, 600)
+                // gltf.scene.scale.set(10, 10, 10)
+                //gltf.scene.rotation.y = 0.78
+
+
+
+                /* var material = materials[ 0 ];
+            var object = new THREE.Mesh( geometry, material );
+                object.castShadow = true;
+                object.position.y = 550;
+                object.scale.set(0.05, 0.05, 0.05);*/
+                var lighthouse = gltf.scene;
+
+                scene.add(lighthouse);
+
+                /* gltf.animations; // Array<THREE.AnimationClip>
+                gltf.scene; // THREE.Scene
+                gltf.scenes; // Array<THREE.Scene>
+                gltf.cameras; // Array<THREE.Camera>
+                gltf.asset; // Object */
+
+            },
+            // called while loading is progressing
+            function (xhr) {
+
+                console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+                if (xhr.loaded / xhr.total == 1) {
+
+                }
+
+            },
+            // called when loading has errors
+            function (error) {
+
+                console.log('An error happened');
+
+            }
+        );
 
         loader.load(
             // resource URL
@@ -431,7 +459,7 @@
                     500 || oggetto[i].position.z + z < -500) {
                     continue;
                 }
-                
+
                 if (randRadians > oggetto[i].rotation.y) {
                     while (randRadians > oggetto[i].rotation.y) {
                         //setTimeout(function () {
@@ -447,7 +475,7 @@
                         //}, 100);
                     }
                 }
-            
+
 
             }
             fishFlag = true;
@@ -474,7 +502,7 @@
         if (fishFlag) {
             setTimeout(function(){movimentoPesce(pesce);
             }, 100);
-            
+
         }
 
         function polarToCartesian(radius, angle) {
@@ -490,7 +518,7 @@
             /* if (fishFlag) {
                 setTimeout(function(){movimentoPesce(pesce);
                 }, 1000);
-                
+
             } */
 
             var time = performance.now() * 0.001;
@@ -505,7 +533,7 @@
 
             //camera.lookAt(mouse3D);
             /* delta += 0.01;
-            
+
                 //camera.lookAt = light.position;
                 camera.position.x = Math.sin(delta) * 2000;
                 camera.position.z = Math.cos(delta) * 2000; */
