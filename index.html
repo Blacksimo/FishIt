@@ -45,6 +45,7 @@
         // OGGETTI
         var pesce = [];
         var boat;
+        var lighthouse;
         var boatFlag = false;
         var fishFlag = false;
 
@@ -158,6 +159,7 @@
             })
         );
         sunSphere.position.y = -700000;
+        //sunSphere.position.x = -500000;
         sunSphere.visible = false;
         scene.add(sunSphere);
 
@@ -169,8 +171,8 @@
             mieCoefficient: 0.005,
             mieDirectionalG: 0.8,
             luminance: 1,
-            inclination: 0.49, // elevation / inclination
-            azimuth: 0.25, // Facing front,
+            inclination: 0.55, // elevation / inclination
+            azimuth: 0.6, // Facing front,
             sun: !true
         };
 
@@ -235,6 +237,7 @@
 
                 gltf.scene.castShadow = true;
                 gltf.scene.name = "lighthouse";
+                gltf.scene.position.y = -13;
 
 
 
@@ -249,7 +252,7 @@
                 object.castShadow = true;
                 object.position.y = 550;
                 object.scale.set(0.05, 0.05, 0.05);*/
-                var lighthouse = gltf.scene;
+                lighthouse = gltf.scene;
 
                 scene.add(lighthouse);
 
