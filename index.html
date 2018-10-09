@@ -452,8 +452,10 @@
         function movimentoPesce(oggetto) {
             /* var randDegrees;
             var randRadians; */
-            fishFlag = false;
+            //fishFlag = false;
             for (var i = 0; i < oggetto.length; i++) {
+
+                //fishFlag=false;
                 var randDegrees = Math.floor(Math.random() * 360) - 180;
                 var randRadians = Math.radians(randDegrees);
                 var x = 2 * Math.cos(randRadians);
@@ -462,26 +464,61 @@
                     500 || oggetto[i].position.z + z < -500) {
                     continue;
                 }
+                /* 
+                console.log("radianti randomici:", randRadians);
+                console.log("radianti del pesce:", oggetto[i].rotation.y); */
+                //console.log(randRadians > oggetto[i].rotation.y);
+
+                function r1(oggetto) {
+                    //console.log("ciclo1");
+                    setTimeout(function () {
+
+                        //console.log(oggetto[i])
+                        if (randRadians < oggetto.rotation.y) {
+                            //setTimeout(function () {
+                            oggetto.rotation.y += 0.017;
+                            oggetto.translateOnAxis(xAxis, -0.5);
+                            //}, 100);
+                            r1(oggetto);
+                        }
+                    }, 1);
+
+                }
+
+                function r2(oggetto) {
+                    //console.log("ciclo2");
+                    setTimeout(function () {
+
+
+                        if (randRadians > oggetto.rotation.y) {
+                            //setTimeout(function () {
+                            oggetto.rotation.y -= 0.017;
+                            oggetto.translateOnAxis(xAxis, -0.5);
+                            //}, 100);
+                            r2(oggetto);
+                        }
+                    }, 1);
+
+                }
 
                 if (randRadians > oggetto[i].rotation.y) {
-                    while (randRadians > oggetto[i].rotation.y) {
-                        //setTimeout(function () {
-                            oggetto[i].rotation.y += 0.017;
-                            oggetto[i].translateOnAxis(xAxis, -0.5);
-                        //}, 100);
-                    }
+                    r1(oggetto[i]);
+
+
                 } else {
-                    while (randRadians < oggetto[i].rotation.y) {
-                        //setTimeout(function () {
-                            oggetto[i].rotation.y -= 0.017;
-                            oggetto[i].translateOnAxis(xAxis, -0.5);
-                        //}, 100);
-                    }
+
+                    r2(oggetto[i]);
+
+                    //fishFlag=true;
                 }
 
 
             }
-            fishFlag = true;
+
+            //console.log("sono uscito dal for");
+            //fishFlag = true;
+            //movimentoPesce(oggetto);
+
         }
 
 
@@ -502,16 +539,22 @@
                 }
             }, 3000); */
 
-        if (fishFlag) {
-            setTimeout(function(){movimentoPesce(pesce);
+        /* if (fishFlag) {
+            setTimeout(function () {
+                movimentoPesce(pesce);
             }, 100);
 
-        }
+        } */
 
         function polarToCartesian(radius, angle) {
             return [radius * Math.cos(angle), radius * Math.sin(angle)]
         }
 
+
+
+
+
+        //
         var animate = function () {
             requestAnimationFrame(animate);
 
@@ -524,6 +567,10 @@
 
             } */
 
+
+            //movimentoPesce(pesce);
+
+            movimentoPesce(pesce);
             var time = performance.now() * 0.001;
             if (boatFlag) {
                 boat.rotation.x = Math.sin(time) * 0.015;
