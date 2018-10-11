@@ -48,6 +48,8 @@
         var lighthouse;
         var boatFlag = false;
         var fishFlag = false;
+        var flag = false;
+        var helper;
 
 
 
@@ -205,8 +207,8 @@
         //camera.lookAt(mouse3D);
 
 
-        var helper = new THREE.CameraHelper(light.shadow.camera);
-        scene.add(helper);
+        //var helper = new THREE.CameraHelper(light.shadow.camera);
+        //scene.add(helper);
 
         //var r = 0;
 
@@ -400,7 +402,7 @@
                     //console.log(gltf.scene.position);
                     gltf.scene.name = "pesce" + i.toString();
 
-                    gltf.scene.rotation.y = Math.random();
+                    gltf.scene.rotation.y = Math.random() * 6.28 - 3.14;
 
 
                     //gltf.scene.position.y = 550;
@@ -456,52 +458,57 @@
             for (var i = 0; i < oggetto.length; i++) {
 
                 //fishFlag=false;
-                var randDegrees = Math.floor(Math.random() * 360) - 180;
+                var randDegrees = Math.floor(Math.random() * 720) - 360;
                 var randRadians = Math.radians(randDegrees);
-                var x = 2 * Math.cos(randRadians);
-                var z = 2 * Math.sin(randRadians);
+                var x = 0.5 * Math.cos(randRadians);
+                var z = 0.5 * Math.sin(randRadians);
                 if (oggetto[i].position.x + x > 500 || oggetto[i].position.x + x < -500 || oggetto[i].position.z + z >
                     500 || oggetto[i].position.z + z < -500) {
-                    continue;
+                    var rand = THREE.Math.randFloatSpread(1000);
+                    oggetto[i].position.set(0, -20, 0);
                 }
+
                 /* 
                 console.log("radianti randomici:", randRadians);
-                console.log("radianti del pesce:", oggetto[i].rotation.y); */
-                //console.log(randRadians > oggetto[i].rotation.y);
+                console.log("radianti del pesce:", oggetto[i].rotation.y); 
+                console.log(randRadians > oggetto[i].rotation.y); */
 
                 function r1(oggetto) {
                     //console.log("ciclo1");
-                    setTimeout(function () {
+                    //setTimeout(function () {
 
-                        //console.log(oggetto[i])
-                        if (randRadians < oggetto.rotation.y) {
-                            //setTimeout(function () {
-                            oggetto.rotation.y += 0.017;
-                            oggetto.translateOnAxis(xAxis, -0.5);
-                            //}, 100);
-                            r1(oggetto);
-                        }
-                    }, 1);
+                    //console.log(oggetto[i])
+                    if (randRadians > oggetto.rotation.y) {
+                        //setTimeout(function () {
+                        oggetto.rotation.y += 0.17;
+                        oggetto.translateOnAxis(xAxis, -0.5);
+                        //}, 100);
+                        r1(oggetto);
+                    }
+                    //}, 1);
 
                 }
 
                 function r2(oggetto) {
                     //console.log("ciclo2");
-                    setTimeout(function () {
+                    //setTimeout(function () {
 
 
-                        if (randRadians > oggetto.rotation.y) {
-                            //setTimeout(function () {
-                            oggetto.rotation.y -= 0.017;
-                            oggetto.translateOnAxis(xAxis, -0.5);
-                            //}, 100);
-                            r2(oggetto);
-                        }
-                    }, 1);
+                    if (randRadians < oggetto.rotation.y) {
+                        //setTimeout(function () {
+                        oggetto.rotation.y -= 0.17;
+                        oggetto.translateOnAxis(xAxis, -0.5);
+                        //}, 100);
+                        r2(oggetto);
+                    }
+                    //}, 1);
 
                 }
 
+                randRadians = randRadians + oggetto[i].rotation.y
+
                 if (randRadians > oggetto[i].rotation.y) {
+
                     r1(oggetto[i]);
 
 
@@ -550,6 +557,64 @@
             return [radius * Math.cos(angle), radius * Math.sin(angle)]
         }
 
+        ///////////////////
+        //COLLISION
+        ///////////////////
+
+        var cubeGeometry = new THREE.CubeGeometry(50, 50, 50, 1, 1, 1);
+        var wireMaterial = new THREE.MeshBasicMaterial({
+            color: 0xff0000,
+            wireframe: true
+        });
+        MovingCube = new THREE.Mesh(cubeGeometry, wireMaterial);
+        MovingCube.position.set(0, 25.1, 0);
+        scene.add(MovingCube);
+
+        function update() {
+            var delta = clock.getDelta(); // seconds.
+            var moveDistance = 200 * delta; // 200 pixels per second
+            var rotateAngle = Math.PI / 2 * delta; // pi/2 radians (90 degrees) per second
+
+            if (keyboard.pressed("A"))
+                MovingCube.rotation.y += rotateAngle;
+            if (keyboard.pressed("D"))
+                MovingCube.rotation.y -= rotateAngle;
+
+            if (keyboard.pressed("left"))
+                MovingCube.position.x -= moveDistance;
+            if (keyboard.pressed("right"))
+                MovingCube.position.x += moveDistance;
+            if (keyboard.pressed("up"))
+                MovingCube.position.z -= moveDistance;
+            if (keyboard.pressed("down"))
+                MovingCube.position.z += moveDistance;
+
+            // collision detection:
+            //   determines if any of the rays from the cube's origin to each vertex
+            //		intersects any face of a mesh in the array of target meshes
+            //   for increased collision accuracy, add more vertices to the cube;
+            //		for example, new THREE.CubeGeometry( 64, 64, 64, 8, 8, 8, wireMaterial )
+            //   HOWEVER: when the origin of the ray is within the target mesh, collisions do not occur
+            var originPoint = MovingCube.position.clone();
+            clearText();
+
+            for (var vertexIndex = 0; vertexIndex < MovingCube.geometry.vertices.length; vertexIndex++) {
+                var localVertex = MovingCube.geometry.vertices[vertexIndex].clone();
+                var globalVertex = localVertex.applyMatrix4(MovingCube.matrix);
+                var directionVector = globalVertex.sub(MovingCube.position);
+
+                var ray = new THREE.Raycaster(originPoint, directionVector.clone().normalize());
+                var collisionResults = ray.intersectObjects(collidableMeshList);
+                if (collisionResults.length > 0 && collisionResults[0].distance < directionVector.length())
+                    appendText(" Hit ");
+            }
+            controls.update();
+            stats.update();
+        }
+
+
+
+
 
 
 
@@ -570,7 +635,7 @@
 
             //movimentoPesce(pesce);
 
-            movimentoPesce(pesce);
+            //movimentoPesce(pesce);
             var time = performance.now() * 0.001;
             if (boatFlag) {
                 boat.rotation.x = Math.sin(time) * 0.015;
@@ -579,6 +644,16 @@
             }
 
             //.movimentoPesce(Math.radians(Math.floor(Math.random() * 360) - 180));
+
+            if (flag) {
+                helper = new THREE.BoundingBoxHelper(boat, 0xff0000);
+                helper.position = boat.position;
+                helper.update();
+                // If you want a visible bounding box
+                scene.add(helper);
+                flag = false;
+                
+            }
 
 
             //camera.lookAt(mouse3D);
