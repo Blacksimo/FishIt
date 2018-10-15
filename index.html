@@ -25,12 +25,8 @@
     <script src="js/Reflector.js"></script>
     <script src="js/Refractor.js"></script>
     <script src="js/Sky.js"></script>
-    <script src="js/libs/inflate.min.js"></script>
-    <script src="js/loaders/MTLLoader.js"></script>
-    <script src="js/loaders/OBJLoader.js"></script>
-    <script src="js/loaders/DDSLoader.js"></script>
-    <script src="js/loaders/FBXLoader.js"></script>
-    <script src="js/PointerLockControls.js"></script>
+    <script src="js/libs/stats.min.js"></script>
+
     <script>
         // Converts from degrees to radians.
         Math.radians = function (degrees) {
@@ -52,6 +48,8 @@
         var helper;
         var boxes = [];
         var movingCubes = [];
+        var collidableMeshList = [];
+        var container, stats;
 
 
 
@@ -66,22 +64,22 @@
         var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 100000);
         camera.position.set(159, 10, 552);
         // camera.position.set(-43, 872, 506);
-        var controls = new THREE.OrbitControls(camera);
-        controls.update();
+        //var controls = new THREE.OrbitControls(camera);
+        //controls.update();
         // controls.enableZoom = false;
         //controls.enablePan = false;
         //controls.enabled = false;
 
 
-        // camera.lookAt(0,0,0);
-        // window.addEventListener('mousemove', function(e){
-        //     var mouse3D = new THREE.Vector3(
-        //     (( event.clientX / window.innerWidth ) * 2 - 1)*300,
-        //     (- ( event.clientY / window.innerHeight ) * 2 + 1)*300,
-        //     0.5 );
-        //     camera.lookAt(mouse3D);
-        // });
-        //
+        camera.lookAt(0, 0, 0);
+        window.addEventListener('mousemove', function (e) {
+            var mouse3D = new THREE.Vector3(
+                ((event.clientX / window.innerWidth) * 2 - 1) * 300,
+                (-(event.clientY / window.innerHeight) * 2 + 1) * 300,
+                0.5);
+            camera.lookAt(mouse3D);
+        });
+
 
 
 
@@ -98,6 +96,21 @@
         /* var looking = new THREE.PointerLockControls( camera );
         scene.add( looking.getObject() ); */
         //looking.enabled = true; // Turns on camera rotating with mouse
+
+        function init() {
+            container = document.createElement('div');
+            document.body.appendChild(container);
+            stats = new Stats();
+            container.appendChild(stats.dom);
+            window.addEventListener('resize', onWindowResize, false);
+        }
+        init();
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
 
         ///////////////////
         //LIGHTS & SHADOWS
@@ -419,21 +432,30 @@
                     object.scale.set(0.05, 0.05, 0.05);*/
 
                     pesce[i] = THREE.Object3D.prototype.clone.call(gltf.scene)
-                    boxes[i] = new THREE.BoxHelper(pesce[i], 0xff0000);
-                    var cubeGeometry = boxes[i].geometry;
+                    //boxes[i] = new THREE.BoxHelper(pesce[i], 0xff0000);
+                    var center = new THREE.Vector3();
+                    var box = new THREE.Box3().setFromObject(pesce[i]);
+                    var cubeGeometry = new THREE.BoxGeometry(box.getSize(center).x, box.getSize(center).y, box.getSize(
+                        center).z);
                     var wireMaterial = new THREE.MeshBasicMaterial({
                         color: 0xff0000,
                         wireframe: true
                     });
                     movingCubes[i] = new THREE.Mesh(cubeGeometry, wireMaterial);
-                    movingCubes[i].position = pesce[i].position;
+                    movingCubes[i].position.x = pesce[i].position.x;
+                    movingCubes[i].position.y = pesce[i].position.y + 2.5;
+                    movingCubes[i].position.z = pesce[i].position.z;
+
+                    collidableMeshList.push(movingCubes[i]);
+
 
                     //boxes[i].position = pesce[i].position;
                     //boxes[i].update();
 
+                    scene.add(pesce[i]);
                     //scene.add(boxes[i]);
                     scene.add(movingCubes[i]);
-                    scene.add(pesce[i]);
+
                     //fishFlag = true;
 
                 }
@@ -488,34 +510,50 @@
                 console.log("radianti del pesce:", oggetto[i].rotation.y); 
                 console.log(randRadians > oggetto[i].rotation.y); */
 
-                function r1(oggetto, i) {
+                function r1(oggetto, i, cubo) {
                     //console.log("ciclo1");
                     //setTimeout(function () {
 
                     //console.log(oggetto[i])
                     if (randRadians > oggetto.rotation.y) {
                         //setTimeout(function () {
+                        var deltax = oggetto.position.x;
+                        var deltaz = oggetto.position.z;
                         oggetto.rotation.y += 0.17;
                         oggetto.translateOnAxis(xAxis, -0.5);
+                        deltax = oggetto.position.x - deltax;
+                        deltaz = oggetto.position.z - deltaz;
+                        cubo.position.x += deltax;
+                        cubo.position.z += deltaz;
+                        //console.log(deltax);
+                        //cubo.rotation = oggetto.rotation;
                         //}, 100);
-                        r1(oggetto, i);
+                        r1(oggetto, i, cubo);
                         //boxes[i].update();
                     }
                     //}, 1);
 
                 }
 
-                function r2(oggetto, i) {
+                function r2(oggetto, i, cubo) {
                     //console.log("ciclo2");
                     //setTimeout(function () {
 
 
                     if (randRadians < oggetto.rotation.y) {
                         //setTimeout(function () {
+                        var deltax = oggetto.position.x;
+                        var deltaz = oggetto.position.z;
                         oggetto.rotation.y -= 0.17;
                         oggetto.translateOnAxis(xAxis, -0.5);
+                        deltax = oggetto.position.x - deltax;
+                        deltaz = oggetto.position.z - deltaz;
+                        cubo.position.x += deltax;
+                        cubo.position.z += deltaz;
+                        //console.log(deltax);
+                        //cubo.rotation = oggetto.rotation;
                         //}, 100);
-                        r2(oggetto, i);
+                        r2(oggetto, i, cubo);
                         //boxes[i].update();
                     }
                     //}, 1);
@@ -526,20 +564,20 @@
 
                 if (randRadians > oggetto[i].rotation.y) {
 
-                    r1(oggetto[i], i);
+                    r1(oggetto[i], i, movingCubes[i]);
 
 
                 } else {
 
-                    r2(oggetto[i], i);
+                    r2(oggetto[i], i, movingCubes[i]);
 
                     //fishFlag=true;
                 }
 
-                movingCubes[i].position.x = pesce[i].position.x;
-                movingCubes[i].position.z = pesce[i].position.z;
-                movingCubes[i].rotation.y = pesce[i].rotation.y;
-                
+                //movingCubes[i].position.x = pesce[i].position.x;
+                //movingCubes[i].position.z = pesce[i].position.z;
+                //movingCubes[i].rotation.y = pesce[i].rotation.y;
+
                 /* scene.remove(movingCubes[i]);
                 movingCubes[i].position = pesce[i].position;
                 scene.add(movingCubes[i]);
@@ -579,7 +617,7 @@
 
         } */
 
-        function boxUpdate(box, pesce){
+        function boxUpdate(box, pesce) {
             box.position = pesce.position;
         }
 
@@ -591,58 +629,25 @@
         //COLLISION
         ///////////////////
 
-        var cubeGeometry = new THREE.CubeGeometry(50, 50, 50, 1, 1, 1);
-        var wireMaterial = new THREE.MeshBasicMaterial({
-            color: 0xff0000,
-            wireframe: true
-        });
-        MovingCube = new THREE.Mesh(cubeGeometry, wireMaterial);
-        MovingCube.position.set(0, 25.1, 0);
-        scene.add(MovingCube);
 
-        function update() {
-            var delta = clock.getDelta(); // seconds.
-            var moveDistance = 200 * delta; // 200 pixels per second
-            var rotateAngle = Math.PI / 2 * delta; // pi/2 radians (90 degrees) per second
 
-            if (keyboard.pressed("A"))
-                MovingCube.rotation.y += rotateAngle;
-            if (keyboard.pressed("D"))
-                MovingCube.rotation.y -= rotateAngle;
+        function collision(obj) {
+            for (var i = 0; i < obj.length; i++) {
+                var originPoint = movingCubes[i].position.clone();
+                //clearText();
 
-            if (keyboard.pressed("left"))
-                MovingCube.position.x -= moveDistance;
-            if (keyboard.pressed("right"))
-                MovingCube.position.x += moveDistance;
-            if (keyboard.pressed("up"))
-                MovingCube.position.z -= moveDistance;
-            if (keyboard.pressed("down"))
-                MovingCube.position.z += moveDistance;
+                for (var vertexIndex = 0; vertexIndex < movingCubes[i].geometry.vertices.length; vertexIndex++) {
+                    var localVertex = movingCubes[i].geometry.vertices[vertexIndex].clone();
+                    var globalVertex = localVertex.applyMatrix4(movingCubes[i].matrix);
+                    var directionVector = globalVertex.sub(movingCubes[i].position);
 
-            // collision detection:
-            //   determines if any of the rays from the cube's origin to each vertex
-            //		intersects any face of a mesh in the array of target meshes
-            //   for increased collision accuracy, add more vertices to the cube;
-            //		for example, new THREE.CubeGeometry( 64, 64, 64, 8, 8, 8, wireMaterial )
-            //   HOWEVER: when the origin of the ray is within the target mesh, collisions do not occur
-            var originPoint = MovingCube.position.clone();
-            clearText();
-
-            for (var vertexIndex = 0; vertexIndex < MovingCube.geometry.vertices.length; vertexIndex++) {
-                var localVertex = MovingCube.geometry.vertices[vertexIndex].clone();
-                var globalVertex = localVertex.applyMatrix4(MovingCube.matrix);
-                var directionVector = globalVertex.sub(MovingCube.position);
-
-                var ray = new THREE.Raycaster(originPoint, directionVector.clone().normalize());
-                var collisionResults = ray.intersectObjects(collidableMeshList);
-                if (collisionResults.length > 0 && collisionResults[0].distance < directionVector.length())
-                    appendText(" Hit ");
+                    var ray = new THREE.Raycaster(originPoint, directionVector.clone().normalize());
+                    var collisionResults = ray.intersectObjects(collidableMeshList);
+                    /* if (collisionResults.length > 0 && collisionResults[0].distance < directionVector.length())
+                        console.log(" Hit "); */
+                }
             }
-            controls.update();
-            stats.update();
         }
-
-
 
 
 
@@ -661,7 +666,8 @@
                 }, 1000);
 
             } */
-
+            stats.update();
+            collision(pesce);
 
             //movimentoPesce(pesce);
 
@@ -683,6 +689,7 @@
                 scene.add(helper);
                 flag = false; */
                 movimentoPesce(pesce);
+
 
             }
 
