@@ -50,6 +50,8 @@
         var fishFlag = false;
         var flag = false;
         var helper;
+        var boxes = [];
+        var movingCubes = [];
 
 
 
@@ -417,7 +419,20 @@
                     object.scale.set(0.05, 0.05, 0.05);*/
 
                     pesce[i] = THREE.Object3D.prototype.clone.call(gltf.scene)
+                    boxes[i] = new THREE.BoxHelper(pesce[i], 0xff0000);
+                    var cubeGeometry = boxes[i].geometry;
+                    var wireMaterial = new THREE.MeshBasicMaterial({
+                        color: 0xff0000,
+                        wireframe: true
+                    });
+                    movingCubes[i] = new THREE.Mesh(cubeGeometry, wireMaterial);
+                    movingCubes[i].position = pesce[i].position;
 
+                    //boxes[i].position = pesce[i].position;
+                    //boxes[i].update();
+
+                    //scene.add(boxes[i]);
+                    scene.add(movingCubes[i]);
                     scene.add(pesce[i]);
                     //fishFlag = true;
 
@@ -473,7 +488,7 @@
                 console.log("radianti del pesce:", oggetto[i].rotation.y); 
                 console.log(randRadians > oggetto[i].rotation.y); */
 
-                function r1(oggetto) {
+                function r1(oggetto, i) {
                     //console.log("ciclo1");
                     //setTimeout(function () {
 
@@ -483,13 +498,14 @@
                         oggetto.rotation.y += 0.17;
                         oggetto.translateOnAxis(xAxis, -0.5);
                         //}, 100);
-                        r1(oggetto);
+                        r1(oggetto, i);
+                        //boxes[i].update();
                     }
                     //}, 1);
 
                 }
 
-                function r2(oggetto) {
+                function r2(oggetto, i) {
                     //console.log("ciclo2");
                     //setTimeout(function () {
 
@@ -499,7 +515,8 @@
                         oggetto.rotation.y -= 0.17;
                         oggetto.translateOnAxis(xAxis, -0.5);
                         //}, 100);
-                        r2(oggetto);
+                        r2(oggetto, i);
+                        //boxes[i].update();
                     }
                     //}, 1);
 
@@ -509,16 +526,25 @@
 
                 if (randRadians > oggetto[i].rotation.y) {
 
-                    r1(oggetto[i]);
+                    r1(oggetto[i], i);
 
 
                 } else {
 
-                    r2(oggetto[i]);
+                    r2(oggetto[i], i);
 
                     //fishFlag=true;
                 }
 
+                movingCubes[i].position.x = pesce[i].position.x;
+                movingCubes[i].position.z = pesce[i].position.z;
+                movingCubes[i].rotation.y = pesce[i].rotation.y;
+                
+                /* scene.remove(movingCubes[i]);
+                movingCubes[i].position = pesce[i].position;
+                scene.add(movingCubes[i]);
+                console.log("diocane"); */
+                //boxUpdate(movingCubes[i], pesce[i]);
 
             }
 
@@ -552,6 +578,10 @@
             }, 100);
 
         } */
+
+        function boxUpdate(box, pesce){
+            box.position = pesce.position;
+        }
 
         function polarToCartesian(radius, angle) {
             return [radius * Math.cos(angle), radius * Math.sin(angle)]
@@ -646,13 +676,14 @@
             //.movimentoPesce(Math.radians(Math.floor(Math.random() * 360) - 180));
 
             if (flag) {
-                helper = new THREE.BoundingBoxHelper(boat, 0xff0000);
+                /* helper = new THREE.BoxHelper(boat, 0xff0000);
                 helper.position = boat.position;
                 helper.update();
                 // If you want a visible bounding box
                 scene.add(helper);
-                flag = false;
-                
+                flag = false; */
+                movimentoPesce(pesce);
+
             }
 
 
