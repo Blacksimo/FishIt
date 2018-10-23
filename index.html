@@ -2,22 +2,20 @@
 <html>
 
 <head>
-    <link rel='icon' type='image/x-icon' href='/favicon.ico' />
-    <meta charset=utf-8>
-    <title>FishIT</title>
-    <style>
-        body {
-            margin: 0;
-        }
 
-        canvas {
-            width: 100%;
-            height: 100%
-        }
-    </style>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <meta charset="utf-8">
+    <title>FishIT</title>
+
+    <link rel="stylesheet" type="text/css" href="css/index.css">
 </head>
 
+
+
 <body>
+
+    <script src="js/libs/x-tag-core.min.js"></script>
+    <script src="templates/progress-bars.js"></script>
     <script src="js/three.js"></script>
     <script src="js/GLTFLoader.js"></script>
     <script src="js/OrbitControls.js"></script>
@@ -26,19 +24,19 @@
     <script src="js/Refractor.js"></script>
     <script src="js/Sky.js"></script>
     <script src="js/libs/stats.min.js"></script>
+    <script src="js/KeyboardState.js"></script>
+
+    <div id="container"><br /><br /><br /><br /><br />Loading...</div>
+
+    <div id="progressBar">
+
+        <circular-progress-bar id="bar-1" barcolor="#EE5C42" filledcolor="#8B3626" progressStringFormat="Press SPACE"
+            displayTextWhenDone="false">
+        </circular-progress-bar>
+
+    </div>
 
     <script>
-        // Converts from degrees to radians.
-        Math.radians = function (degrees) {
-            return degrees * Math.PI / 180;
-        };
-
-        // Converts from radians to degrees.
-        Math.degrees = function (radians) {
-            return radians * 180 / Math.PI;
-        };
-
-        // OGGETTI
         var pesce = [];
         var boat;
         var lighthouse;
@@ -50,61 +48,42 @@
         var movingCubes = [];
         var collidableMeshList = [];
         var container, stats;
+        var scene, renderer, camera;
+        var light, light2;
+        var progress;
+        var quickTime = false;
+        var keyboard = new KeyboardState();
+        var bar = document.getElementById("bar-1");
+        var xAxis = new THREE.Vector3(1, 0, 0);
 
-
-
-
-        var scene = new THREE.Scene();
-        scene.fog = new THREE.Fog(0xcce0ff, 500, 10000);
 
         ///////////////////
-        //CAMERA
+        //QUICKTIME EVENT
         ///////////////////
 
-        var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 100000);
-        camera.position.set(159, 10, 552);
-        // camera.position.set(-43, 872, 506);
-        //var controls = new THREE.OrbitControls(camera);
-        //controls.update();
-        // controls.enableZoom = false;
-        //controls.enablePan = false;
-        //controls.enabled = false;
-
-
-        camera.lookAt(0, 0, 0);
-        window.addEventListener('mousemove', function (e) {
-            var mouse3D = new THREE.Vector3(
-                ((event.clientX / window.innerWidth) * 2 - 1) * 300,
-                (-(event.clientY / window.innerHeight) * 2 + 1) * 300,
-                0.5);
-            camera.lookAt(mouse3D);
-        });
-
-
-
-
-        /* var mouseX;
-        var mouseY;
-        window.addEventListener('mouseMove', function(event){
-            mouseX = ( event.clientX / window.innerWidth ) * 2 - 1;
-            mouseY = - ( event.clientY / window.innerHeight ) * 2 + 1;
-            camera.position.x += ( mouseX - camera.position.x ) ;
-            camera.position.y += ( - mouseY - camera.position.y ) ;
-            camera.lookAt( scene.position );
-        }) */
-
-        /* var looking = new THREE.PointerLockControls( camera );
-        scene.add( looking.getObject() ); */
-        //looking.enabled = true; // Turns on camera rotating with mouse
-
-        function init() {
-            container = document.createElement('div');
-            document.body.appendChild(container);
-            stats = new Stats();
-            container.appendChild(stats.dom);
-            window.addEventListener('resize', onWindowResize, false);
+        function SetBarsAsUndefined() {
+            bar.setUndeterminated(1);
         }
-        init();
+
+        function SetBarsAsDefined() {
+            bar.setUndeterminated(0);
+        }
+
+        function UpdateBars() {
+            bar.progress++;
+            if (document.getElementById("bar-1").progress < 100) {
+                setTimeout(UpdateBars, 10);
+            }
+        }
+        // Converts from degrees to radians.
+        Math.radians = function (degrees) {
+            return degrees * Math.PI / 180;
+        };
+
+        // Converts from radians to degrees.
+        Math.degrees = function (radians) {
+            return radians * 180 / Math.PI;
+        };
 
         function onWindowResize() {
             camera.aspect = window.innerWidth / window.innerHeight;
@@ -112,389 +91,276 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
         }
 
-        ///////////////////
-        //LIGHTS & SHADOWS
-        ///////////////////
-
-        var renderer = new THREE.WebGLRenderer();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.shadowMap.enabled = true;
-        renderer.shadowMap.type = THREE.PCFSoftShadowMap; // default THREE.PCFShadowMap
-        document.body.appendChild(renderer.domElement);
-
-        var light2 = new THREE.AmbientLight(0x404040); // soft white light
-        scene.add(light2);
-
-        var light = new THREE.DirectionalLight(0xffffff, 3);
-        light.position.set(400, 400, 400);
-        light.castShadow = true;
-        scene.add(light);
-        //Set up shadow properties for the light
-        light.shadow.mapSize.width = 512; // default
-        light.shadow.mapSize.height = 512; // default
-        light.shadow.camera.near = 0.5; // default
-        light.shadow.camera.far = 500 // default
-
-        ///////////////////
-        //WATER
-        ///////////////////
-
-        var params = {
-            color: '#ffffff',
-            scale: 4,
-            flowX: 1,
-            flowY: 1
-        };
-
-        var waterGeometry = new THREE.PlaneBufferGeometry(2000, 2000);
-        water = new THREE.Water(waterGeometry, {
-            color: params.color,
-            scale: params.scale,
-            flowDirection: new THREE.Vector2(params.flowX, params.flowY),
-            textureWidth: 1024,
-            textureHeight: 1024
-        });
-        water.position.y = -11;
-        water.rotation.x = Math.PI * -0.5;
-        scene.add(water);
 
 
-        ///////////////////
-        //SKY
-        ///////////////////
+        init();
+        initBasicGraphics();
+        initCustomModels();
 
-        // Add Sky
-        sky = new THREE.Sky();
-        sky.scale.setScalar(450000);
-        scene.add(sky);
+        function init() {
+            ///////////////////
+            //CAMERA
+            ///////////////////
 
-        // Add Sun Helper
-        sunSphere = new THREE.Mesh(
-            new THREE.SphereBufferGeometry(20000, 16, 8),
-            new THREE.MeshBasicMaterial({
-                color: 0xffffff
-            })
-        );
-        sunSphere.position.y = -700000;
-        //sunSphere.position.x = -500000;
-        sunSphere.visible = false;
-        scene.add(sunSphere);
+            container = document.getElementById('container');
 
-        var distance = 400000;
+            scene = new THREE.Scene();
+            scene.fog = new THREE.Fog(0xcce0ff, 500, 10000);
 
-        var effectController = {
-            turbidity: 10,
-            rayleigh: 2,
-            mieCoefficient: 0.005,
-            mieDirectionalG: 0.8,
-            luminance: 1,
-            inclination: 0.55, // elevation / inclination
-            azimuth: 0.6, // Facing front,
-            sun: !true
-        };
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 100000);
+            camera.position.set(159, 10, 552);
 
-        var uniforms = sky.material.uniforms;
-        uniforms.turbidity.value = effectController.turbidity;
-        uniforms.rayleigh.value = effectController.rayleigh;
-        uniforms.luminance.value = effectController.luminance;
-        uniforms.mieCoefficient.value = effectController.mieCoefficient;
-        uniforms.mieDirectionalG.value = effectController.mieDirectionalG;
-        var theta = Math.PI * (effectController.inclination - 0.5);
-        var phi = 2 * Math.PI * (effectController.azimuth - 0.5);
-        sunSphere.position.x = distance * Math.cos(phi);
-        sunSphere.position.y = distance * Math.sin(phi) * Math.sin(theta);
-        sunSphere.position.z = distance * Math.sin(phi) * Math.cos(theta);
-        sunSphere.visible = effectController.sun;
-        uniforms.sunPosition.value.copy(sunSphere.position);
+            //ORBIT CONTROL
+            //var controls = new THREE.OrbitControls(camera);
+            //controls.update();
 
-        ///////////////////
-        //CAMERA
-        ///////////////////
+            camera.lookAt(0, 0, 0);
+            window.addEventListener('mousemove', function (e) {
+                var mouse3D = new THREE.Vector3(
+                    ((event.clientX / window.innerWidth) * 2 - 1) * 300,
+                    (-(event.clientY / window.innerHeight) * 2 + 1) * 300,
+                    0.5);
+                camera.lookAt(mouse3D);
+            });
+
+            /* IF YOU NEED A 360 DEGREES CAMERA, YOU CAN USE POINTERLOCKCONTROL
+            EXAMPLE IS DINO:
+            https://codepen.io/MSEdgeDev/pen/NpKejy */
+
+            /* var looking = new THREE.PointerLockControls( camera );
+            scene.add( looking.getObject() ); */
+            //looking.enabled = true; // Turns on camera rotating with mouse
 
 
-        /* var geometry = new THREE.BoxGeometry(1, 1, 1);
-        var material = new THREE.MeshPhongMaterial({ color: 0x00ff00 });
-        var cube = new THREE.Mesh(geometry, material);
-        scene.add(cube); */
+            ///////////////////
+            //LIGHTS & SHADOWS
+            ///////////////////
 
 
-        //camera.position.y = 5;
-        //camera.lookAt(mouse3D);
+            renderer = new THREE.WebGLRenderer();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap; // default THREE.PCFShadowMap
+
+            light2 = new THREE.AmbientLight(0x404040); // soft white light
+            scene.add(light2);
+
+            light = new THREE.DirectionalLight(0xffffff, 3);
+            light.position.set(400, 400, 400);
+            light.castShadow = true;
+            scene.add(light);
+            //Set up shadow properties for the light
+            light.shadow.mapSize.width = 512; // default
+            light.shadow.mapSize.height = 512; // default
+            light.shadow.camera.near = 0.5; // default
+            light.shadow.camera.far = 500 // default
+
+            container.innerHTML = "";
+            container.appendChild(renderer.domElement);
+
+            //STATS TOP LEFT
+            stats = new Stats();
+            stats.domElement.style.position = 'absolute';
+            stats.domElement.style.top = '0px'
+            container.appendChild(stats.domElement);
+
+            //PROGRESS BAR
+            progress = document.getElementById('progressBar');
+            progress.style.position = 'absolute';
+            progress.style.top = '50%';
+            progress.style.left = '50%';
+            progress.style.visibility = 'hidden';
+            container.appendChild(progress);
+
+            window.addEventListener('resize', onWindowResize, false);
+        }
 
 
-        //var helper = new THREE.CameraHelper(light.shadow.camera);
-        //scene.add(helper);
+        function initBasicGraphics() {
 
-        //var r = 0;
+            ///////////////////
+            //WATER
+            ///////////////////
 
-        //Create a plane that receives shadows (but does not cast them)
-        /* var planeGeometry = new THREE.PlaneBufferGeometry(1320, 1320, 1332, 1332);
-        var planeMaterial = new THREE.MeshStandardMaterial({ color: 0x00ff00 })
-        var plane = new THREE.Mesh(planeGeometry, planeMaterial);
-        plane.rotation.x = 5;
-        plane.receiveShadow = true;
-        scene.add(plane); */
+            var params = {
+                color: '#ffffff',
+                scale: 4,
+                flowX: 1,
+                flowY: 1
+            };
 
-
-        ///////////////////
-        //3D MODELS
-        ///////////////////
-
-
-        var loader = new THREE.GLTFLoader();
-
-        loader.load(
-            // resource URL
-            '/models/lighthouse/model.gltf',
-            // called when the resource is loaded
-            function (gltf) {
-
-                //gltf.scene.rotation.z = 180;
+            var waterGeometry = new THREE.PlaneBufferGeometry(2000, 2000);
+            water = new THREE.Water(waterGeometry, {
+                color: params.color,
+                scale: params.scale,
+                flowDirection: new THREE.Vector2(params.flowX, params.flowY),
+                textureWidth: 1024,
+                textureHeight: 1024
+            });
+            water.position.y = -11;
+            water.rotation.x = Math.PI * -0.5;
+            scene.add(water);
 
 
-                gltf.scene.castShadow = true;
-                gltf.scene.name = "lighthouse";
-                gltf.scene.position.y = -13;
+            ///////////////////
+            //SKY
+            ///////////////////
 
+            // Add Sky
+            sky = new THREE.Sky();
+            sky.scale.setScalar(450000);
+            scene.add(sky);
 
+            // Add Sun Helper
+            sunSphere = new THREE.Mesh(
+                new THREE.SphereBufferGeometry(20000, 16, 8),
+                new THREE.MeshBasicMaterial({
+                    color: 0xffffff
+                })
+            );
+            sunSphere.position.y = -700000;
+            sunSphere.visible = false;
+            scene.add(sunSphere);
 
-                // gltf.scene.position.set(270, -8, 600)
-                // gltf.scene.scale.set(10, 10, 10)
-                //gltf.scene.rotation.y = 0.78
+            var distance = 400000;
 
+            var effectController = {
+                turbidity: 10,
+                rayleigh: 2,
+                mieCoefficient: 0.005,
+                mieDirectionalG: 0.8,
+                luminance: 1,
+                inclination: 0.55, // elevation / inclination
+                azimuth: 0.6, // Facing front,
+                sun: !true
+            };
 
+            var uniforms = sky.material.uniforms;
+            uniforms.turbidity.value = effectController.turbidity;
+            uniforms.rayleigh.value = effectController.rayleigh;
+            uniforms.luminance.value = effectController.luminance;
+            uniforms.mieCoefficient.value = effectController.mieCoefficient;
+            uniforms.mieDirectionalG.value = effectController.mieDirectionalG;
+            var theta = Math.PI * (effectController.inclination - 0.5);
+            var phi = 2 * Math.PI * (effectController.azimuth - 0.5);
+            sunSphere.position.x = distance * Math.cos(phi);
+            sunSphere.position.y = distance * Math.sin(phi) * Math.sin(theta);
+            sunSphere.position.z = distance * Math.sin(phi) * Math.cos(theta);
+            sunSphere.visible = effectController.sun;
+            uniforms.sunPosition.value.copy(sunSphere.position);
+        }
 
-                /* var material = materials[ 0 ];
-            var object = new THREE.Mesh( geometry, material );
-                object.castShadow = true;
-                object.position.y = 550;
-                object.scale.set(0.05, 0.05, 0.05);*/
-                lighthouse = gltf.scene;
+        function initCustomModels() {
+            ///////////////////
+            //3D MODELS
+            ///////////////////
+            var loader = new THREE.GLTFLoader();
 
-                scene.add(lighthouse);
+            loader.load(
+                '/models/lighthouse/model.gltf',
+                function (gltf) {
+                    gltf.scene.castShadow = true;
+                    gltf.scene.name = "lighthouse";
+                    gltf.scene.position.y = -13;
 
-                /* gltf.animations; // Array<THREE.AnimationClip>
-                gltf.scene; // THREE.Scene
-                gltf.scenes; // Array<THREE.Scene>
-                gltf.cameras; // Array<THREE.Camera>
-                gltf.asset; // Object */
-
-            },
-            // called while loading is progressing
-            function (xhr) {
-
-                console.log((xhr.loaded / xhr.total * 100) + '% loaded');
-                if (xhr.loaded / xhr.total == 1) {
-
+                    lighthouse = gltf.scene;
+                    scene.add(lighthouse);
+                },
+                function (xhr) {
+                    console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+                    if (xhr.loaded / xhr.total == 1) {}
+                },
+                function (error) {
+                    console.log('An error happened');
                 }
+            );
 
-            },
-            // called when loading has errors
-            function (error) {
+            loader.load(
+                '/models/boat/scene.gltf',
+                function (gltf) {
+                    gltf.scene.castShadow = true;
+                    gltf.scene.name = "boat";
+                    gltf.scene.position.set(270, -8, 600);
+                    gltf.scene.scale.set(10, 10, 10);
 
-                console.log('An error happened');
+                    boat = gltf.scene;
+                    scene.add(boat);
+                    boatFlag = true;
 
-            }
-        );
-
-        loader.load(
-            // resource URL
-            '/models/boat/scene.gltf',
-            // called when the resource is loaded
-            function (gltf) {
-
-                //gltf.scene.rotation.z = 180;
-
-
-                gltf.scene.castShadow = true;
-                gltf.scene.name = "boat";
-
-
-
-                gltf.scene.position.set(270, -8, 600)
-                gltf.scene.scale.set(10, 10, 10)
-                //gltf.scene.rotation.y = 0.78
-
-
-
-                /* var material = materials[ 0 ];
-		        var object = new THREE.Mesh( geometry, material );
-                object.castShadow = true;
-                object.position.y = 550;
-                object.scale.set(0.05, 0.05, 0.05);*/
-                boat = gltf.scene;
-
-                scene.add(boat);
-                boatFlag = true;
-
-                /* gltf.animations; // Array<THREE.AnimationClip>
-                gltf.scene; // THREE.Scene
-                gltf.scenes; // Array<THREE.Scene>
-                gltf.cameras; // Array<THREE.Camera>
-                gltf.asset; // Object */
-
-            },
-            // called while loading is progressing
-            function (xhr) {
-
-                console.log((xhr.loaded / xhr.total * 100) + '% loaded');
-                if (xhr.loaded / xhr.total == 1) {
-
+                },
+                function (xhr) {
+                    console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+                    if (xhr.loaded / xhr.total == 1) {}
+                },
+                function (error) {
+                    console.log('An error happened');
                 }
+            );
 
-            },
-            // called when loading has errors
-            function (error) {
-
-                console.log('An error happened');
-
-            }
-        );
-
-        loader.load(
-            // resource URL
-            '/models/rod/scene.gltf',
-            // called when the resource is loaded
-            function (gltf) {
-
-                //gltf.scene.rotation.z = 180;
-
-                gltf.scene.position.set(170, 10, 570);
-                gltf.scene.scale.set(5, 5, 5);
-                gltf.scene.castShadow = true;
-
-                //gltf.scene.position.y = 550;
-
-                //gltf.scene.scale.set(0.05, 0.05, 0.05);
-
-
-                /* var material = materials[ 0 ];
-		        var object = new THREE.Mesh( geometry, material );
-                object.castShadow = true;
-                object.position.y = 550;
-                object.scale.set(0.05, 0.05, 0.05);*/
-
-                scene.add(gltf.scene);
-
-                /* gltf.animations; // Array<THREE.AnimationClip>
-                gltf.scene; // THREE.Scene
-                gltf.scenes; // Array<THREE.Scene>
-                gltf.cameras; // Array<THREE.Camera>
-                gltf.asset; // Object */
-
-            },
-            // called while loading is progressing
-            function (xhr) {
-
-                console.log((xhr.loaded / xhr.total * 100) + '% loaded');
-
-            },
-            // called when loading has errors
-            function (error) {
-
-                console.log('An error happened');
-
-            }
-        );
-
-        loader.load(
-            // resource URL
-            '/models/fish/scene.gltf',
-            // called when the resource is loaded
-            function (gltf) {
-
-                gltf.scene.scale.set(0.05, 0.05, 0.05);
-                gltf.scene.castShadow = true;
-
-                for (var i = 0; i < 100; i++) {
-
-                    //gltf.scene.rotation.z = 180;
-
-                    x = THREE.Math.randFloatSpread(1000);
-                    z = THREE.Math.randFloatSpread(1000);
-
-                    gltf.scene.position.set(x, -20, z);
-                    //console.log(gltf.scene.position);
-                    gltf.scene.name = "pesce" + i.toString();
-
-                    gltf.scene.rotation.y = Math.random() * 6.28 - 3.14;
-
-
-                    //gltf.scene.position.y = 550;
-
-                    //gltf.scene.scale.set(0.05, 0.05, 0.05);
-
-
-                    /* var material = materials[ 0 ];
-                    var object = new THREE.Mesh( geometry, material );
-                    object.castShadow = true;
-                    object.position.y = 550;
-                    object.scale.set(0.05, 0.05, 0.05);*/
-
-                    pesce[i] = THREE.Object3D.prototype.clone.call(gltf.scene)
-                    //boxes[i] = new THREE.BoxHelper(pesce[i], 0xff0000);
-                    var center = new THREE.Vector3();
-                    var box = new THREE.Box3().setFromObject(pesce[i]);
-                    var cubeGeometry = new THREE.BoxGeometry(box.getSize(center).x, box.getSize(center).y, box.getSize(
-                        center).z);
-                    var wireMaterial = new THREE.MeshBasicMaterial({
-                        color: 0xff0000,
-                        wireframe: true
-                    });
-                    movingCubes[i] = new THREE.Mesh(cubeGeometry, wireMaterial);
-                    movingCubes[i].position.x = pesce[i].position.x;
-                    movingCubes[i].position.y = pesce[i].position.y + 2.5;
-                    movingCubes[i].position.z = pesce[i].position.z;
-
-                    collidableMeshList.push(movingCubes[i]);
-
-
-                    //boxes[i].position = pesce[i].position;
-                    //boxes[i].update();
-
-                    scene.add(pesce[i]);
-                    //scene.add(boxes[i]);
-                    scene.add(movingCubes[i]);
-
-                    //fishFlag = true;
-
+            loader.load(
+                '/models/rod/scene.gltf',
+                function (gltf) {
+                    gltf.scene.position.set(170, 10, 570);
+                    gltf.scene.scale.set(5, 5, 5);
+                    gltf.scene.castShadow = true;
+                    scene.add(gltf.scene);
+                },
+                function (xhr) {
+                    console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+                },
+                function (error) {
+                    console.log('An error happened');
                 }
+            );
 
-                /* gltf.animations; // Array<THREE.AnimationClip>
-                gltf.scene; // THREE.Scene
-                gltf.scenes; // Array<THREE.Scene>
-                gltf.cameras; // Array<THREE.Camera>
-                gltf.asset; // Object */
+            loader.load(
+                '/models/fish/scene.gltf',
+                function (gltf) {
+                    gltf.scene.scale.set(0.05, 0.05, 0.05);
+                    gltf.scene.castShadow = true;
+                    for (var i = 0; i < 100; i++) {
+                        x = THREE.Math.randFloatSpread(1000);
+                        z = THREE.Math.randFloatSpread(1000);
+                        gltf.scene.position.set(x, -20, z);
+                        gltf.scene.name = "pesce" + i.toString();
+                        gltf.scene.rotation.y = Math.random() * 6.28 - 3.14;
+                        pesce[i] = THREE.Object3D.prototype.clone.call(gltf.scene)
 
-            },
-            // called while loading is progressing
-            function (xhr) {
+                        //COLLISION BOXES
+                        var center = new THREE.Vector3();
+                        var box = new THREE.Box3().setFromObject(pesce[i]);
+                        var cubeGeometry = new THREE.BoxGeometry(box.getSize(center).x, box.getSize(center).y, box.getSize(
+                            center).z);
+                        var wireMaterial = new THREE.MeshBasicMaterial({
+                            color: 0xff0000,
+                            wireframe: true
+                        });
+                        movingCubes[i] = new THREE.Mesh(cubeGeometry, wireMaterial);
+                        movingCubes[i].position.x = pesce[i].position.x;
+                        movingCubes[i].position.y = pesce[i].position.y + 2.5;
+                        movingCubes[i].position.z = pesce[i].position.z;
 
-                console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+                        collidableMeshList.push(movingCubes[i]);
 
-            },
-            // called when loading has errors
-            function (error) {
-
-                console.log('An error happened');
-
-            }
-        );
-        //var delta = 0;
+                        scene.add(pesce[i]);
+                        scene.add(movingCubes[i]);
+                    }
+                },
+                function (xhr) {
+                    console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+                },
+                function (error) {
+                    console.log('An error happened');
+                }
+            );
+        }
 
         ///////////////////
         //FISH MOVEMENT
         ///////////////////
 
-        var xAxis = new THREE.Vector3(1, 0, 0);
-
         function movimentoPesce(oggetto) {
-            /* var randDegrees;
-            var randRadians; */
-            //fishFlag = false;
             for (var i = 0; i < oggetto.length; i++) {
-
-                //fishFlag=false;
                 var randDegrees = Math.floor(Math.random() * 720) - 360;
                 var randRadians = Math.radians(randDegrees);
                 var x = 0.5 * Math.cos(randRadians);
@@ -505,18 +371,11 @@
                     oggetto[i].position.set(0, -20, 0);
                 }
 
-                /* 
-                console.log("radianti randomici:", randRadians);
-                console.log("radianti del pesce:", oggetto[i].rotation.y); 
-                console.log(randRadians > oggetto[i].rotation.y); */
-
                 function r1(oggetto, i, cubo) {
-                    //console.log("ciclo1");
-                    //setTimeout(function () {
 
-                    //console.log(oggetto[i])
+                    //TO SLOW DOWN FISH MOVEMENT, UNCOMMENT SETTIMEOUT
+                    //setTimeout(function () {
                     if (randRadians > oggetto.rotation.y) {
-                        //setTimeout(function () {
                         var deltax = oggetto.position.x;
                         var deltaz = oggetto.position.z;
                         oggetto.rotation.y += 0.17;
@@ -525,23 +384,14 @@
                         deltaz = oggetto.position.z - deltaz;
                         cubo.position.x += deltax;
                         cubo.position.z += deltaz;
-                        //console.log(deltax);
-                        //cubo.rotation = oggetto.rotation;
-                        //}, 100);
                         r1(oggetto, i, cubo);
-                        //boxes[i].update();
                     }
-                    //}, 1);
-
+                    //}, 10);
                 }
 
                 function r2(oggetto, i, cubo) {
-                    //console.log("ciclo2");
                     //setTimeout(function () {
-
-
                     if (randRadians < oggetto.rotation.y) {
-                        //setTimeout(function () {
                         var deltax = oggetto.position.x;
                         var deltaz = oggetto.position.z;
                         oggetto.rotation.y -= 0.17;
@@ -550,75 +400,18 @@
                         deltaz = oggetto.position.z - deltaz;
                         cubo.position.x += deltax;
                         cubo.position.z += deltaz;
-                        //console.log(deltax);
-                        //cubo.rotation = oggetto.rotation;
-                        //}, 100);
                         r2(oggetto, i, cubo);
-                        //boxes[i].update();
                     }
-                    //}, 1);
-
+                    //}, 10);
                 }
 
                 randRadians = randRadians + oggetto[i].rotation.y
-
                 if (randRadians > oggetto[i].rotation.y) {
-
                     r1(oggetto[i], i, movingCubes[i]);
-
-
                 } else {
-
                     r2(oggetto[i], i, movingCubes[i]);
-
-                    //fishFlag=true;
                 }
-
-                //movingCubes[i].position.x = pesce[i].position.x;
-                //movingCubes[i].position.z = pesce[i].position.z;
-                //movingCubes[i].rotation.y = pesce[i].rotation.y;
-
-                /* scene.remove(movingCubes[i]);
-                movingCubes[i].position = pesce[i].position;
-                scene.add(movingCubes[i]);
-                console.log("diocane"); */
-                //boxUpdate(movingCubes[i], pesce[i]);
-
             }
-
-            //console.log("sono uscito dal for");
-            //fishFlag = true;
-            //movimentoPesce(oggetto);
-
-        }
-
-
-
-
-        /* setTimeout(function(){
-                for (var p = 0; p < pesce.length; p++){
-
-                    pesce[p].rotateY(Math.radians(Math.floor(Math.random() * 360) - 180));
-                    pesce[p].translateOnAxis(xAxis, 10);
-                //pesce[p].position.x -= 0.5;
-                //movimentoPesce(pesce[p], Math.radians(Math.floor(Math.random() * 360) - 180));
-                //pesce[p].position.x-=0.3
-                }
-                if (boatFlag){
-                boat.rotateY(0.017);
-                boat.translateOnAxis(diocane, 10);
-                }
-            }, 3000); */
-
-        /* if (fishFlag) {
-            setTimeout(function () {
-                movimentoPesce(pesce);
-            }, 100);
-
-        } */
-
-        function boxUpdate(box, pesce) {
-            box.position = pesce.position;
         }
 
         function polarToCartesian(radius, angle) {
@@ -629,13 +422,9 @@
         //COLLISION
         ///////////////////
 
-
-
         function collision(obj) {
             for (var i = 0; i < obj.length; i++) {
                 var originPoint = movingCubes[i].position.clone();
-                //clearText();
-
                 for (var vertexIndex = 0; vertexIndex < movingCubes[i].geometry.vertices.length; vertexIndex++) {
                     var localVertex = movingCubes[i].geometry.vertices[vertexIndex].clone();
                     var globalVertex = localVertex.applyMatrix4(movingCubes[i].matrix);
@@ -649,60 +438,42 @@
             }
         }
 
+        ///////////////////
+        //ANIMATION
+        ///////////////////
 
-
-
-
-
-        //
         var animate = function () {
             requestAnimationFrame(animate);
 
-            /* for (var p = 0; p < pesce.length; p++) {
-                movimentoPesce(pesce[p], Math.radians(Math.floor(Math.random() * 360) - 180));
-            } */
-            /* if (fishFlag) {
-                setTimeout(function(){movimentoPesce(pesce);
-                }, 1000);
-
-            } */
             stats.update();
             collision(pesce);
+            keyboard.update();
 
-            //movimentoPesce(pesce);
+            if (quickTime) {
+                flag = false;
+                bar.progress = 0;
+                progress.style.visibility = 'visible';
+                bar.style.visibility = 'visible';
+                UpdateBars();
+                quickTime = false;
+            }
 
-            //movimentoPesce(pesce);
             var time = performance.now() * 0.001;
             if (boatFlag) {
                 boat.rotation.x = Math.sin(time) * 0.015;
-                //movimentoPesce(boat, 0.17)
-                //boat.position.y = Math.sin(time) * 20 + 5;
             }
-
-            //.movimentoPesce(Math.radians(Math.floor(Math.random() * 360) - 180));
 
             if (flag) {
-                /* helper = new THREE.BoxHelper(boat, 0xff0000);
-                helper.position = boat.position;
-                helper.update();
-                // If you want a visible bounding box
-                scene.add(helper);
-                flag = false; */
                 movimentoPesce(pesce);
-
-
             }
 
+            if (keyboard.down("space")) {
+                bar.progress = 100;
+                bar.style.visibility = 'hidden';
+                progress.style.visibility = 'hidden';
+                flag = true;
+            }
 
-            //camera.lookAt(mouse3D);
-            /* delta += 0.01;
-
-                //camera.lookAt = light.position;
-                camera.position.x = Math.sin(delta) * 2000;
-                camera.position.z = Math.cos(delta) * 2000; */
-
-            /* cube.rotation.x += 0.01;
-            cube.rotation.y += 0.01;*/
             renderer.render(scene, camera);
         };
 
