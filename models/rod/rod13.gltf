@@ -1,0 +1,276 @@
+{
+    "accessors" : [
+        {
+            "bufferView" : 0,
+            "componentType" : 5121,
+            "count" : 288,
+            "max" : [
+                175
+            ],
+            "min" : [
+                0
+            ],
+            "type" : "SCALAR"
+        },
+        {
+            "bufferView" : 1,
+            "componentType" : 5126,
+            "count" : 176,
+            "max" : [
+                0.04506999999284744,
+                2.0197598934173584,
+                0.12296000123023987
+            ],
+            "min" : [
+                -0.066880002617836,
+                -0.054030001163482666,
+                -0.07808999717235565
+            ],
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 2,
+            "componentType" : 5126,
+            "count" : 176,
+            "max" : [
+                0.9985656142234802,
+                1,
+                0.9965208768844604
+            ],
+            "min" : [
+                -0.9987182021141052,
+                -0.9988253712654114,
+                -0.9986876845359802
+            ],
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 3,
+            "componentType" : 5126,
+            "count" : 176,
+            "max" : [
+                0.9997683167457581,
+                0.7921217083930969,
+                0.9952709674835205,
+                -1
+            ],
+            "min" : [
+                -0.999472439289093,
+                -0.23661619424819946,
+                -0.9960390329360962,
+                -1
+            ],
+            "type" : "VEC4"
+        },
+        {
+            "bufferView" : 4,
+            "componentType" : 5126,
+            "count" : 176,
+            "max" : [
+                0.7281500101089478,
+                0.9519799947738647
+            ],
+            "min" : [
+                0.011529999785125256,
+                0.011529982089996338
+            ],
+            "type" : "VEC2"
+        }
+    ],
+    "asset" : {
+        "generator" : "Khronos Blender glTF 2.0 I/O",
+        "version" : "2.0"
+    },
+    "bufferViews" : [
+        {
+            "buffer" : 0,
+            "byteLength" : 288,
+            "byteOffset" : 0,
+            "target" : 34963
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 2112,
+            "byteOffset" : 288,
+            "target" : 34962
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 2112,
+            "byteOffset" : 2400,
+            "target" : 34962
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 2816,
+            "byteOffset" : 4512,
+            "target" : 34962
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 1408,
+            "byteOffset" : 7328,
+            "target" : 34962
+        }
+    ],
+    "buffers" : [
+        {
+            "byteLength" : 8736,
+            "uri" : "rod13.bin"
+        }
+    ],
+    "extensions" : {},
+    "images" : [
+        {
+            "name" : "fishing_rod_mat_baseColor",
+            "uri" : "fishing_rod_mat_baseColor.png"
+        }
+    ],
+    "materials" : [
+        {
+            "name" : "fishing_rod_mat",
+            "pbrMetallicRoughness" : {
+                "baseColorTexture" : {
+                    "index" : 0
+                }
+            }
+        }
+    ],
+    "meshes" : [
+        {
+            "extensions" : {},
+            "name" : "fishing_rod_0",
+            "primitives" : [
+                {
+                    "attributes" : {
+                        "NORMAL" : 2,
+                        "POSITION" : 1,
+                        "TANGENT" : 3,
+                        "TEXCOORD_0" : 4
+                    },
+                    "extensions" : {},
+                    "extras" : {},
+                    "indices" : 0,
+                    "material" : 0
+                }
+            ]
+        }
+    ],
+    "nodes" : [
+        {
+            "extensions" : {},
+            "mesh" : 0,
+            "name" : "fishing_rod_0",
+            "rotation" : [
+                -3.725290653733282e-08,
+                2.7939677238464355e-09,
+                -9.313225746154785e-10,
+                1
+            ],
+            "scale" : [
+                1,
+                0.9999999403953552,
+                1
+            ],
+            "translation" : [
+                0,
+                0,
+                5.587935447692871e-09
+            ]
+        },
+        {
+            "children" : [
+                0
+            ],
+            "extensions" : {},
+            "name" : "fishing_rod",
+            "rotation" : [
+                -0.38001173734664917,
+                0.08231627941131592,
+                -0.009486894123256207,
+                0.921262800693512
+            ],
+            "scale" : [
+                1.0000017881393433,
+                0.9999961853027344,
+                1.0000001192092896
+            ],
+            "translation" : [
+                0.029466938227415085,
+                0.05067779868841171,
+                -0.025399327278137207
+            ]
+        },
+        {
+            "children" : [
+                1
+            ],
+            "extensions" : {},
+            "name" : "Root"
+        },
+        {
+            "children" : [
+                2
+            ],
+            "extensions" : {},
+            "name" : "RootNode (model correction matrix)"
+        },
+        {
+            "children" : [
+                3
+            ],
+            "extensions" : {},
+            "name" : "RootNode (gltf orientation matrix)",
+            "rotation" : [
+                -0.7071068286895752,
+                0,
+                0,
+                0.7071067094802856
+            ],
+            "scale" : [
+                1,
+                1.0000001192092896,
+                1.0000001192092896
+            ]
+        },
+        {
+            "children" : [
+                4
+            ],
+            "extensions" : {},
+            "name" : "Yup2Zup",
+            "rotation" : [
+                0.7071068286895752,
+                0,
+                0,
+                0.7071067094802856
+            ],
+            "scale" : [
+                1,
+                1.0000001192092896,
+                1.0000001192092896
+            ]
+        }
+    ],
+    "samplers" : [
+        {}
+    ],
+    "scene" : 0,
+    "scenes" : [
+        {
+            "name" : "OSG_Scene",
+            "nodes" : [
+                5
+            ]
+        },
+        {
+            "name" : "Scene"
+        }
+    ],
+    "textures" : [
+        {
+            "sampler" : 0,
+            "source" : 0
+        }
+    ]
+}
