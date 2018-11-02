@@ -4,7 +4,7 @@ body {
 
 canvas {
     width: 100%;
-    height: 100%
+    height: 100%;
 }
 
 #progressBar {
@@ -12,6 +12,27 @@ canvas {
     text-align: center;
     padding: 10px;
     font-weight: bold;
+}
+
+#info {
+
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+
+    font-size: 30px;
+    font-family: 'Courier New';
+    display: -webkit-box;
+    display: -moz-box;
+    -webkit-box-orient: horizontal;
+    -moz-box-orient: horizontal;
+    -webkit-box-pack: center;
+    -moz-box-pack: center;
+    -webkit-box-align: center;
+    -moz-box-align: center;
+    color: #ffffff;
+    text-align: center;
+    
 }
 
 .bar_container {
