@@ -5,6 +5,7 @@ var boatFlag = false;
 var fishFlag = false;
 var flag = false;
 var castFlag = false;
+var controlFlag = false;
 var helper;
 var boxes = [];
 var movingCubes = [];
@@ -211,7 +212,7 @@ function init() {
 
     //ORBIT CONTROL
     var controls = new THREE.OrbitControls(camera);
-    controls.update();
+    
 
     /* camera.lookAt(0, 0, 0);
     window.addEventListener('mousemove', function (e) {
@@ -728,6 +729,10 @@ var animate = function () {
     stats.update();
 
     keyboard.update();
+
+    if (controlFlag){
+        controls.update();
+    }
 
     if (quickTime) {
         flag = false;
