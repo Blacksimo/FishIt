@@ -5,7 +5,6 @@ var boatFlag = false;
 var fishFlag = false;
 var flag = false;
 var castFlag = false;
-var controlFlag = false;
 var helper;
 var boxes = [];
 var movingCubes = [];
@@ -210,6 +209,27 @@ function init() {
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 100000);
     camera.position.set(159, 10, 552);
 
+    //ORBIT CONTROL
+    var controls = new THREE.OrbitControls(camera);
+    controls.update();
+
+    /* camera.lookAt(0, 0, 0);
+    window.addEventListener('mousemove', function (e) {
+        var mouse3D = new THREE.Vector3(
+            ((event.clientX / window.innerWidth) * 2 - 1) * 300,
+            (-(event.clientY / window.innerHeight) * 2 + 1) * 300,
+            0.5);
+        camera.lookAt(mouse3D);
+    }); */
+
+    /* IF YOU NEED A 360 DEGREES CAMERA, YOU CAN USE POINTERLOCKCONTROL
+    EXAMPLE IS DINO:
+    https://codepen.io/MSEdgeDev/pen/NpKejy */
+
+    /* var looking = new THREE.PointerLockControls( camera );
+    scene.add( looking.getObject() ); */
+    //looking.enabled = true; // Turns on camera rotating with mouse
+
 
     ///////////////////
     //LIGHTS & SHADOWS
@@ -400,7 +420,10 @@ function roda() {
         '/models/rod/rod13.gltf',
         function (gltf) {
             rod1 = THREE.Object3D.prototype.clone.call(gltf.scene);
+            // rod1.rotation.x = -2;
+            // rod1.position.set(170, 5, 565);
             rod1.position.set(t2.x, t2.y + 5, t2.z);
+            // rod1.position.set(t2.x, t2.y, t2.z);
             rod1.scale.set(5, 5, 5);
             rod1.castShadow = true;
             scene.add(rod1);
@@ -420,7 +443,10 @@ function rodb() {
         '/models/rod/rod14.gltf',
         function (gltf) {
             rod2 = THREE.Object3D.prototype.clone.call(gltf.scene);
+            // rod2.rotation.x = -1.6;
+            // rod2.position.set(170, 4.5, 565);
             rod2.position.set(t3.x, t3.y + 5, t3.z);
+            // rod2.position.set(t3.x, t3.y, t3.z);
             rod2.scale.set(5, 5, 5);
             rod2.castShadow = true;
             scene.add(rod2);
@@ -439,7 +465,10 @@ function rodc() {
         '/models/rod/rod15.gltf',
         function (gltf) {
             rod3 = THREE.Object3D.prototype.clone.call(gltf.scene);
+            // rod2.rotation.x = -1.6;
+            // rod2.position.set(170, 4.5, 565);
             rod3.position.set(t4.x, t4.y + 5, t4.z);
+            // rod2.position.set(t3.x, t3.y, t3.z);
             rod3.scale.set(5, 5, 5);
             rod3.castShadow = true;
 
@@ -454,7 +483,7 @@ function rodc() {
                 center).z);
             var wireMaterial = new THREE.MeshBasicMaterial({
                 opacity: params.opacity,
-                transparent: true,
+                // transparent: true,
                 color: 0xFFFFFF,
                 wireframe: true
             });
@@ -508,7 +537,6 @@ loader.load(
             movingCubes[i].position.x = pesce[i].position.x;
             movingCubes[i].position.y = pesce[i].position.y + 2.5;
             movingCubes[i].position.z = pesce[i].position.z;
-
             scene.add(pesce[i]);
             scene.add(movingCubes[i]);
         }
@@ -679,12 +707,6 @@ var animate = function () {
     stats.update();
 
     keyboard.update();
-
-    //ORBIT CONTROL
-    if (controlFlag){
-        var controls = new THREE.OrbitControls(camera);
-        controls.update();
-    }
 
     if (quickTime) {
         flag = false;
@@ -886,7 +908,6 @@ function keyDownTextField(e) {
         baitBox.position.x = 950;
         baitBox.position.y = 950;
         baitBox.position.z = 950;
-
 
         if (map[70]) { // pull the rod
             if (insideWater) {
