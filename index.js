@@ -210,8 +210,7 @@ function init() {
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 100000);
     camera.position.set(159, 10, 552);
 
-    //ORBIT CONTROL
-    var controls = new THREE.OrbitControls(camera);
+    
     
 
     /* camera.lookAt(0, 0, 0);
@@ -730,7 +729,9 @@ var animate = function () {
 
     keyboard.update();
 
+    //ORBIT CONTROL
     if (controlFlag){
+        var controls = new THREE.OrbitControls(camera);
         controls.update();
     }
 
