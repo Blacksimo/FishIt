@@ -807,13 +807,15 @@ function keyDownTextField(e) {
     function f1() {
         setTimeout(function () {
             //about 26 step
-            if (r2pos.y < -1) {
+            if (r2pos.y < -1 && !insideWater) {
                 r1rot.x = 0;
                 rod2.scale.set(5, 14 + scale, 5);
                 r2pos.y += 0.5;
                 r3pos.y += 0.57;
-                r2pos.z = bpos.z;
+                r2pos.z = bpos.z+0.05;
+                r2pos.x = bpos.x+0.05
                 r3pos.z = r2pos.z;
+                r3pos.x = r2pos.x;
                 scale -= 0.3461;
                 f1()
             }
@@ -823,11 +825,13 @@ function keyDownTextField(e) {
     function f2() {
         setTimeout(function () {
             //about 26 step
-            if (r2pos.y > -14) {
+            if (r2pos.y > -14 && insideWater) {
                 rod2.scale.set(5, 5-scale, 5);
                 r2pos.y -= 0.5;
                 r3pos.y -=0.57;
-                r2pos.z = bpos.z + sin(brot.y + 3);
+                r2pos.z = bpos.z + 0.05;
+                r2pos.x = bpos.x + 0.05;
+                r3pos.x = r2pos.x;
                 r3pos.z = r2pos.z;
                 bBoxpos.x = r3pos.x;
                 bBoxpos.y = r3pos.y;
@@ -869,13 +873,13 @@ function keyDownTextField(e) {
             brot.y += 120 * Math.PI / 180;
         }
         cpos.x = bpos.x;
-        cpos.y = bpos.y + 5;
-        cpos.z = bpos.z - 5;
+        cpos.y = bpos.y+9;
+        cpos.z = bpos.z;
         crot.y = brot.y - (90 * Math.PI / 180);
         r1pos.x = bpos.x;
         r1pos.z = bpos.z;
-        r2pos.x = bpos.x;
-        r2pos.z = bpos.z;
+        r2pos.x = bpos.x+0.05;
+        r2pos.z = bpos.z+0.05;
         r3pos.x = bpos.x;
         r3pos.z = bpos.z;
         r1rot.y = brot.y;
@@ -918,9 +922,25 @@ function myKeyUpHandler(e) {
     var bpos = boat.position
     var crot = camera.rotation;
     var cpos = camera.position;
+    var r2pos = rod2.position;
+    var r3pos = rod3.position;
     if (e.keyCode in map) {
         map[e.keyCode] = false;
         crot.y = brot.y;
-        cpos.x = bpos.x-14;
+        cpos.x = bpos.x;
+        r2pos.z = bpos.z+0.05;
+        r2pos.x = bpos.x+0.05;
+        r3pos.z = bpos.z+0.05;
+        r3pos.x = bpos.x+0.05;
+        // if (brot.y>60*Math.PI/180 && brot.y<180*Math.PI/180) {
+        //   r2pos.z = bpos.z+0.05;
+        //   r2pos.x = bpos.x+0.05;
+        //   }
+        // else if (brot.y>180*Math.PI/180 && brot.y<360*Math.PI/180){
+        //   r2pos.z = bpos.z+0.05;
+        //   r2pos.x = bpos.x+0.05;
+        // }
     }
+
+
 };

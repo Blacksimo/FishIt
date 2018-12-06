@@ -14,4 +14,4 @@
 #### - Use F to throw the rod
 #### - Use G to pull the rod
 
-### [Play it!](https://sad-boyd-68f820.netlify.com)
+### Enjoy it!
