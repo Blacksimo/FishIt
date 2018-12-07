@@ -13,6 +13,7 @@
 #### - Use W, S, A, D to drive the boat
 #### - Use F to throw the rod
 #### - Use G to pull the rod
+#### - Press SpaceBar when a fish eat the bait to gain a point
 
 ### Enjoy it!
 =======
