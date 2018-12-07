@@ -1,4 +1,4 @@
-# FishIt
+# FishIT
 ## About the game
 
 #### A fishing game, created mainly using HTML, JS, and Three.js.
@@ -15,3 +15,6 @@
 #### - Use G to pull the rod
 
 ### Enjoy it!
+=======
+
+[Demo Here](https://sad-boyd-68f820.netlify.com/)
