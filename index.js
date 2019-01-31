@@ -38,6 +38,11 @@ var theta = [0, 0, 0.5, 0, 0];
 for (var i = 0; i < numNodes; i++) figure[i] = createNode(null, null, null, null); // create a node for each object
 var insideWater = false;
 
+var root;
+// var mouseX = 0, mouseY = 0;
+// var windowHalfX = window.innerWidth / 2;
+// var windowHalfY = window.innerHeight / 2;
+
 ///////////////////
 //BROWSER DETECTION
 ///////////////////
@@ -216,7 +221,7 @@ function init() {
     //LIGHTS & SHADOWS
     ///////////////////
 
-
+    // renderer = new THREE.WebGLRenderer( { antialias: true } );
     renderer = new THREE.WebGLRenderer();
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.shadowMap.enabled = true;
@@ -316,6 +321,114 @@ function initBasicGraphics() {
     sunSphere.position.y = -700000;
     sunSphere.visible = false;
     scene.add(sunSphere);
+
+
+
+    ////////////////
+    // Human model
+    ///////////////
+
+
+    var bodyGeom = new THREE.BoxBufferGeometry( 3, 5, 1.5 );
+    var handGeom = new THREE.BoxBufferGeometry( 0.75, 3, 1.5 );
+    var lowerhandGeom = new THREE.BoxBufferGeometry( 0.7, 3, 1.5 );
+    var legGeom = new THREE.BoxBufferGeometry( 0.75, 3.5, 1.5 );
+    var lowerlegGeom = new THREE.BoxBufferGeometry( 0.7, 5.5, 1.5 );
+    var headGeom = new THREE.SphereBufferGeometry( 1.1, 32, 32 );
+    // var material = new THREE.MeshNormalMaterial();
+
+    texture = new THREE.TextureLoader().load('images/bodytexture.jpg');
+    var material = new THREE.MeshBasicMaterial({ map: texture });
+
+
+
+    body = new THREE.Mesh( bodyGeom, material );
+    body.name = "Body";
+    body.position.x = 268;
+    body.position.y = 7;
+    body.position.z = 600;
+    scene.add( body );
+
+    var amount = 200, upperObj, parent = body;
+
+    //Left Arm
+    upperObj = new THREE.Mesh( handGeom, material );
+    upperObj.position.x = 2;
+    upperObj.position.y = 1;
+    upperObj.rotation.x = 20*Math.PI/180;
+    upperObj.name = "Left Arm";
+
+    //Left Lower Arm
+    lowerObj= new THREE.Mesh( lowerhandGeom, material );
+    //lowObj.position.x = 150;
+    lowerObj.position.y = -2.5;
+    lowerObj.name = "Left Lower Arm";
+
+    upperObj.add(lowerObj);
+    parent.add( upperObj );
+
+    //Right Arm
+    upperObj = new THREE.Mesh( handGeom, material );
+    upperObj.position.x = -2;
+    upperObj.position.y = 1;
+    upperObj.rotation.x = 20*Math.PI/180;
+    upperObj.name = "Right Arm";
+
+    //Right Lower Arm
+    lowerObj = new THREE.Mesh( lowerhandGeom, material );
+    //lowObj.position.x = 150;
+    lowerObj.position.y = -2.5;
+    lowerObj.name = "Right Lower Arm";
+
+    upperObj.add(lowerObj);
+    parent.add( upperObj);
+
+    //Left Leg
+    upperObj = new THREE.Mesh( legGeom, material );
+    upperObj.position.y = -3;
+    upperObj.position.x = 0.65;
+    // upperObj.position.z = -1;
+    // upperObj.rotation.x = 90*Math.PI/180;
+    upperObj.name = "Left Leg";
+
+
+    //Left Lower Leg
+    lowerObj = new THREE.Mesh( lowerlegGeom, material );
+    //lowObj.position.x = 150;
+    lowerObj.position.y = -3.5;
+    // lowerObj.position.z = 1;
+    // lowerObj.rotation.x = 90*Math.PI/180;
+
+    lowerObj.name = "Left Lower Leg";
+
+    upperObj.add(lowerObj);
+    parent.add( upperObj );
+
+    //Right Leg
+    upperObj = new THREE.Mesh( legGeom, material );
+    upperObj.position.y = -3;
+    upperObj.position.x = -0.65;
+    upperObj.position.z = -1;
+    upperObj.rotation.x = 60*Math.PI/180;
+    upperObj.name = "Right Leg";
+
+
+    //Right Lower Leg
+    lowerObj = new THREE.Mesh( lowerlegGeom, material );
+    //lowObj.position.x = 150;
+    lowerObj.position.y = -2.5;
+    lowerObj.position.z = 2;
+    lowerObj.rotation.x = -60*Math.PI/180;
+    lowerObj.name = "Right Lower Leg";
+
+    upperObj.add(lowerObj);
+    parent.add( upperObj );
+
+    //Head
+    head = new THREE.Mesh( headGeom, material );
+    head.position.y = 4;
+    head.name = "Head";
+    parent.add( head );
 
     var distance = 400000;
 
@@ -612,7 +725,6 @@ function collision(obj) {
                 quickTime = true;
                 continue;
             }
-
         }
     }
 }
@@ -718,6 +830,7 @@ var animate = function () {
             console.log("got it!");
             bar.progress = 100;
 
+
             //flag = true;
             pressSpace = false;
         }
@@ -743,6 +856,8 @@ var render = function () {
     camera.position.set(t1.x, t1.y + 10, t1.z);
     requestAnimationFrame(animate);
 }
+
+
 // create the nodes
 for (i = 0; i <= numNodes; i++) initNodes(i);
 render();
@@ -798,28 +913,37 @@ function keyDownTextField(e) {
     var r1rot = rod1.rotation;
     var r2rot = rod2.rotation;
     var r3rot = rod3.rotation;
+    var bodypos = body.position;
+    var bodyrot = body.rotation;
     var bBoxpos = baitBox.position;
     var cos = Math.cos;
     var sin = Math.sin;
-
+    var humanrot = lowerObj.rotation;
 
 
     function f1() {
         setTimeout(function () {
             //about 26 step
             if (r2pos.y < -1 && !insideWater) {
-                r1rot.x = 0;
+                // r1rot.x = 0;
                 rod2.scale.set(5, 14 + scale, 5);
+                r1rot.x = 0;
+                r1rot.z = 0;
+
+                body.traverse( function ( object ) {
+                  object.rotation.x -= 0.0065*sin(brot.y);
+                  object.rotation.z += 0.0065*cos(brot.y);
+                } );
                 r2pos.y += 0.5;
-                r3pos.y += 0.57;
-                r2pos.z = bpos.z+0.05;
-                r2pos.x = bpos.x+0.05
+                r3pos.y += 0.584;
+                r2pos.z = bpos.z+0.05*sin(brot.y);
+                r2pos.x = bpos.x+0.05*cos(brot.y);
                 r3pos.z = r2pos.z;
                 r3pos.x = r2pos.x;
                 scale -= 0.3461;
                 f1()
             }
-        }, 100);
+        }, 10);
     }
 
     function f2() {
@@ -827,20 +951,33 @@ function keyDownTextField(e) {
             //about 26 step
             if (r2pos.y > -14 && insideWater) {
                 rod2.scale.set(5, 5-scale, 5);
-                r2pos.y -= 0.5;
-                r3pos.y -=0.57;
-                r2pos.z = bpos.z + 0.05;
-                r2pos.x = bpos.x + 0.05;
-                r3pos.x = r2pos.x;
-                r3pos.z = r2pos.z;
-                bBoxpos.x = r3pos.x;
-                bBoxpos.y = r3pos.y;
-                bBoxpos.z = r3pos.z;
+
+                body.traverse( function ( object ) {
+                  object.rotation.x += 0.0072*sin(brot.y);
+                  object.rotation.z -= 0.0072*cos(brot.y);
+                } );
+                  r1rot.x -= 0.01*cos(brot.y);
+                  r1rot.z += 0.01*sin(brot.y);
+                  r1rot.y -= 0.01*sin(brot.y);
+
+
+                  r2pos.y -= 0.6;
+                  r3pos.y -=0.7;
+                  r2pos.z = bpos.z + 0.05;
+                  r2pos.x = bpos.x + 0.05;
+                  r3pos.x = r2pos.x;
+                  r3pos.z = r2pos.z;
+                  bBoxpos.x = r3pos.x;
+                  bBoxpos.y = r3pos.y;
+                  bBoxpos.z = r3pos.z;
                 scale -= 0.3461;
                 f2()
             }
-        }, 100);
+        }, 10);
+
     }
+    console.log(brot.y);
+    console.log(r1rot.x);
 
     if (e.keyCode in map) {
         map[e.keyCode] = true;
@@ -887,6 +1024,12 @@ function keyDownTextField(e) {
         r3rot.y = brot.y;
         r2pos.z = bpos.z + sin(brot.y + 3);
         r3pos.z = r2pos.z;
+        bodypos.x = bpos.x;
+        bodypos.y = bpos.y+7;
+        bodypos.z = bpos.z;
+        bodyrot.y = brot.y;
+        bodyrot.x = brot.x;
+        bodyrot.z = brot.z;
         baitBox.position.x = 950;
         baitBox.position.y = 950;
         baitBox.position.z = 950;
@@ -900,6 +1043,7 @@ function keyDownTextField(e) {
         if (map[70]) { // pull the rod
             if (insideWater) {
                 var scale = -0.3461;
+
                 f1();
             }
             insideWater = false;
