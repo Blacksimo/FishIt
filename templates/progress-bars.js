@@ -1,238 +1,177 @@
-var prototypeProgressBar = xtag.register('prototype-progress-bar', 
-{
+var prototypeProgressBar = xtag.register('prototype-progress-bar', {
     content: '',
-    accessors: 
-    {
-        isundeterminated:
-        {
+    accessors: {
+        isundeterminated: {
             attribute: {},
-            get: function() 
-            {
+            get: function () {
                 return this.privateisundeterminated || 0;
             },
-            set: function()
-            {
+            set: function () {
                 alert("Attention!\n\n'isundeterminated' is a read only accessor.\nTo set a progress bar as indeterminated use '[bar].setIndeterminated(1);'");
             }
         },
-        privateisundeterminated:
-        {
-            attribute:
-            {
-                validate: function(val)
-                {
-                    if(typeof val != "number" || isNaN(val) || val < 0)
-                    {
+        privateisundeterminated: {
+            attribute: {
+                validate: function (val) {
+                    if (typeof val != "number" || isNaN(val) || val < 0) {
                         return 0;
-                    }
-                    else if(val > 1)
-                    {
+                    } else if (val > 1) {
                         return 1;
                     }
                     return val;
                 }
             },
-            set: function(value) 
-            {
+            set: function (value) {
                 this.xtag.data.privateisundeterminated = value;
             },
-            get: function() 
-            {
+            get: function () {
                 return this.getAttribute('privateisundeterminated') || 0;
             }
         },
-        privateundeterminatedindex:
-        {
-            attribute:
-            {
-                validate: function(val)
-                {
-                    if(typeof val != "number" || isNaN(val) || val < 0)
-                    {
+        privateundeterminatedindex: {
+            attribute: {
+                validate: function (val) {
+                    if (typeof val != "number" || isNaN(val) || val < 0) {
                         return 0;
-                    }
-                    else if(val > 360)
-                    {
+                    } else if (val > 360) {
                         return 360;
                     }
                     return val;
                 }
             },
-            set: function(value) 
-            {
+            set: function (value) {
                 this.xtag.data.privateundeterminatedindex = value;
             },
-            get: function() 
-            {
+            get: function () {
                 return this.getAttribute('privateundeterminatedindex') || false;
             }
         },
-        privateundeterminedtimer:
-        {
+        privateundeterminedtimer: {
             attribute: {},
-            set: function(value) 
-            {
+            set: function (value) {
                 this.xtag.data.privateundeterminedtimer = value;
             },
-            get: function() 
-            {
+            get: function () {
                 return this.getAttribute('privateundeterminedtimer') || false;
             }
         },
-        filledcolor: 
-        {
+        filledcolor: {
             attribute: {},
-            set: function(value) 
-            {
+            set: function (value) {
                 this.xtag.data.filledcolor = value;
             },
-            get: function() 
-            {
+            get: function () {
                 return this.getAttribute('filledcolor') || "#828282";
             }
         },
-        barcolor: 
-        {
+        barcolor: {
             attribute: {},
-            set: function(value) 
-            {
+            set: function (value) {
                 this.xtag.data.barcolor = value;
-            },            
-            get: function() 
-            {
+            },
+            get: function () {
                 return this.getAttribute('barcolor') || "#BEBEBE";
             }
         },
-        progress:
-        {
-            attribute:
-            {
-                validate: function(val)
-                {
+        progress: {
+            attribute: {
+                validate: function (val) {
                     return val < 0 ? 0 : (val > 100 ? 100 : val);
                 }
             },
-            set: function(value) 
-            {               
+            set: function (value) {
                 this.xtag.data.progress = value;
-                
-            },            
-            get: function() 
-            {
+
+            },
+            get: function () {
                 return this.getAttribute('progress') || 0;
             }
         },
-        displaytextwhendone:
-        {
-            set: function(value) 
-            {
+        displaytextwhendone: {
+            set: function (value) {
                 this.xtag.data.displaytextwhendone = value;
-            },            
-            get: function() 
-            {
+            },
+            get: function () {
                 return this.getAttribute('displaytextwhendone') || true;
             }
         },
-        donetext:
-        {
-            set: function(value) 
-            {
+        donetext: {
+            set: function (value) {
                 this.xtag.data.donetext = value;
-            },            
-            get: function() 
-            {
+            },
+            get: function () {
                 return this.getAttribute('donetext') || "Done!";
             }
         },
-        progressstringformat:
-        {
-            set: function(value) 
-            {
+        progressstringformat: {
+            set: function (value) {
                 this.xtag.data.progressstringformat = value;
-            },            
-            get: function() 
-            {
+            },
+            get: function () {
                 return this.getAttribute('progressstringformat') || "{p}";
             }
         }
     }
 });
 
-var circularProgressBar = xtag.register('circular-progress-bar', 
-{
+var circularProgressBar = xtag.register('circular-progress-bar', {
     prototype: prototypeProgressBar.prototype,
-    lifecycle:
-    {
-        created: function()
-        {
+    lifecycle: {
+        created: function () {
             this.updateLayoutFor("all");
         },
-        inserted: function()
-        {
+        inserted: function () {
             this.privateisundeterminated = 0;
         },
-        attributeChanged: function(attrName, oldValue, newValue)
-        {
+        attributeChanged: function (attrName, oldValue, newValue) {
             this.updateLayoutFor(attrName);
         }
     },
-    content: function()
-    {/*
-        <link rel="stylesheet" type="text/css" href="templates/css/circular-progress-bar.css">
+    content: function () {
+        /*
+                <link rel="stylesheet" type="text/css" href="templates/css/circular-progress-bar.css">
 
-        <div class="bar_container" id="bar_container">
-            <div class="bar_border">
-                <div class="bar_circle">
-                    <span class="bar_progress">p</p>
+                <div class="bar_container" id="bar_container">
+                    <div class="bar_border">
+                        <div class="bar_circle">
+                            <span class="bar_progress">p</p>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
-    */},
-    accessors: 
-    {
-        circlesize: 
-        {
+            */
+    },
+    accessors: {
+        circlesize: {
             attribute: {},
-            set: function(value) 
-            {
+            set: function (value) {
                 this.xtag.data.circlesize = value;
             },
-            get: function() 
-            {
+            get: function () {
                 return this.getAttribute('circlesize') || 150;
             }
         },
-        barsize: 
-        {
+        barsize: {
             attribute: {},
-            set: function(value) 
-            {
+            set: function (value) {
                 this.xtag.data.barsize = value;
             },
-            get: function() 
-            {
+            get: function () {
                 return this.getAttribute('barsize') || 6;
             }
         },
-        circlebackground: 
-        {
+        circlebackground: {
             attribute: {},
-            set: function(value) 
-            {
+            set: function (value) {
                 this.xtag.data.circlebackground = value;
             },
-            get: function() 
-            {
+            get: function () {
                 return this.getAttribute('circlebackground') || "#FFFFFF";
             }
         }
     },
-    methods: 
-    {
-        setUndeterminated: function(isUndeterminated)
-        {
-            if(this.privateisundeterminated !== isUndeterminated)
-            {
+    methods: {
+        setUndeterminated: function (isUndeterminated) {
+            if (this.privateisundeterminated !== isUndeterminated) {
                 this.privateisundeterminated = isUndeterminated;
 
                 var container = xtag.queryChildren(this, 'div.bar_container')[0];
@@ -241,27 +180,22 @@ var circularProgressBar = xtag.register('circular-progress-bar',
                 var progress = xtag.queryChildren(circle, 'span')[0];
                 var status = GetElementInsideContainer(container, "bar_status");
 
-                if(this.privateisundeterminated == 1)
-                {
+                if (this.privateisundeterminated == 1) {
                     this.privateundeterminatedindex = 0;
-                    
-                    progress.style.visibility="hidden";
+
+                    progress.style.visibility = "hidden";
                     this.privateundeterminedtimer = setInterval(this.privateAdvanceUndeterminated, 30, this, xtag.queryChildren(container, 'div.bar_border')[0]);
-                }
-                else
-                {
+                } else {
                     clearInterval(this.privateundeterminedtimer);
                     this.updateColorOrProgress();
-                    progress.style.visibility="visible";
+                    progress.style.visibility = "visible";
                 }
             }
-            
+
         },
 
-        privateAdvanceUndeterminated: function(obj, border)
-        {
-            if(obj.progress == 100)
-            {
+        privateAdvanceUndeterminated: function (obj, border) {
+            if (obj.progress == 100) {
                 obj.setUndeterminated(0);
                 return;
             }
@@ -270,34 +204,29 @@ var circularProgressBar = xtag.register('circular-progress-bar',
 
             var degree = obj.privateundeterminatedindex;
 
-            if(obj.privateundeterminatedindex > 359)
-            {
+            if (obj.privateundeterminatedindex > 359) {
                 obj.privateundeterminatedindex = 0;
             }
 
             var first_angle = degree - 225;
             var second_angle = degree;
 
-            if(first_angle < 0)
-            {
+            if (first_angle < 0) {
                 first_angle += 360;
             }
 
             border
                 .style
-                    .backgroundImage = 'linear-gradient(' + first_angle + 'deg, transparent 50%, ' + obj.filledcolor + ' 50%),linear-gradient(' + second_angle + 'deg, transparent 50%, ' + obj.filledcolor + ' 50%),linear-gradient(' + second_angle + 'deg, ' + obj.barcolor + ' 50%, transparent 50%)';
+                .backgroundImage = 'linear-gradient(' + first_angle + 'deg, transparent 50%, ' + obj.filledcolor + ' 50%),linear-gradient(' + second_angle + 'deg, transparent 50%, ' + obj.filledcolor + ' 50%),linear-gradient(' + second_angle + 'deg, ' + obj.barcolor + ' 50%, transparent 50%)';
 
-            
+
         },
 
-        updateLayoutFor: function(attrName) 
-        {        
-            if(this.privateisundeterminated == 1)
-            {
+        updateLayoutFor: function (attrName) {
+            if (this.privateisundeterminated == 1) {
                 return;
             }
-            switch(attrName)
-            {
+            switch (attrName) {
                 case "progress":
                 case "barcolor":
                 case "filledcolor":
@@ -316,38 +245,30 @@ var circularProgressBar = xtag.register('circular-progress-bar',
             }
         },
 
-        updateColorOrProgress: function()
-        {
+        updateColorOrProgress: function () {
             var container = xtag.queryChildren(this, 'div.bar_container')[0];
             var border = xtag.queryChildren(container, 'div.bar_border')[0];
             var circle = xtag.queryChildren(border, 'div.bar_circle')[0];
             var progress = xtag.queryChildren(circle, 'span')[0];
 
-            if(this.displaytextwhendone == 1 && this.progress == 100)
-            {
+            if (this.displaytextwhendone == 1 && this.progress == 100) {
                 progress.innerHTML = this.donetext;
-            }
-            else
-            {
+            } else {
                 progress.innerHTML = this.progressstringformat.replace("{p}", Math.round(this.progress));
             }
 
-            if (this.progress<=50)
-            {
+            if (this.progress <= 50) {
                 border.style.backgroundImage = 'linear-gradient(' + (this.progress * 3.6 + 90) + 'deg, transparent 50%, ' + this.barcolor + ' 50%),linear-gradient(270deg, ' + this.filledcolor + ' 50%, ' + this.barcolor + ' 50%)';
-            }
-            else
-            {
+            } else {
                 border.style.backgroundImage = 'linear-gradient(90deg, transparent 50%, ' + this.filledcolor + ' 50%), linear-gradient(' + (this.progress * 3.6 + 270) + 'deg, ' + this.barcolor + ' 50%, ' + this.filledcolor + ' 50%)';
             }
 
             circle.style.backgroundColor = this.circlebackground;
 
-            progress.style.color = 'rgb('+ getColorBetweenColors(hexToRgb(this.filledcolor), hexToRgb(this.filledcolor), this.progress).join() +')';
+            progress.style.color = 'rgb(' + getColorBetweenColors(hexToRgb(this.filledcolor), hexToRgb(this.filledcolor), this.progress).join() + ')';
         },
 
-        updateSize: function()
-        {
+        updateSize: function () {
             var container = xtag.queryChildren(this, 'div.bar_container')[0];
             var border = xtag.queryChildren(container, 'div.bar_border')[0];
             var circle = xtag.queryChildren(border, 'div.bar_circle')[0];
@@ -360,13 +281,12 @@ var circularProgressBar = xtag.register('circular-progress-bar',
 
             circle.style.top = this.barsize;
             circle.style.left = this.barsize;
-            
+
             circle.style.width = this.circlesize - (2 * this.barsize);
             circle.style.height = this.circlesize - (2 * this.barsize);
         },
 
-        updatecirclebackground: function()
-        {
+        updatecirclebackground: function () {
             var container = xtag.queryChildren(this, 'div.bar_container')[0];
             var border = xtag.queryChildren(container, 'div.bar_border')[0];
             var circle = xtag.queryChildren(border, 'div.bar_circle')[0];
@@ -376,43 +296,32 @@ var circularProgressBar = xtag.register('circular-progress-bar',
     }
 });
 
-var circularProgressBarStatus = xtag.register('circular-progress-bar-status', 
-{
+var circularProgressBarStatus = xtag.register('circular-progress-bar-status', {
     prototype: circularProgressBar.prototype,
-    lifecycle:
-    {
-        created: function()
-        {
+    lifecycle: {
+        created: function () {
             var container = xtag.queryChildren(this, 'div.bar_container')[0];
             container.innerHTML += '<p id="bar_status" class="bar_status">' + this.status + '</p>';
             this.updateLayoutFor("all");
         },
-        attributeChanged: function(attrName, oldValue, newValue)
-        {
+        attributeChanged: function (attrName, oldValue, newValue) {
             this.updateLayoutFor(attrName);
         }
     },
-    accessors: 
-    {
-        status: 
-        {
+    accessors: {
+        status: {
             attribute: {},
-            set: function(value) 
-            {
+            set: function (value) {
                 this.xtag.data.status = value;
             },
-            get: function() 
-            {
+            get: function () {
                 return this.getAttribute('status') || "";
             }
         }
     },
-    methods: 
-    {
-        updateLayoutFor: function(attrName)
-        {
-            switch(attrName)
-            {
+    methods: {
+        updateLayoutFor: function (attrName) {
+            switch (attrName) {
                 case "status":
                     this.updateStatus();
                     break;
@@ -422,14 +331,13 @@ var circularProgressBarStatus = xtag.register('circular-progress-bar-status',
                     break;
             }
         },
-        updateStatus: function() 
-        {
+        updateStatus: function () {
             var container = xtag.queryChildren(this, 'div.bar_container')[0];
             var border = xtag.queryChildren(container, 'div.bar_border')[0];
             var circle = xtag.queryChildren(border, 'div.bar_circle')[0];
             var progress = xtag.queryChildren(circle, 'span')[0];
             var status = GetElementInsideContainer(container, "bar_status");
-            
+
             container.style.height = parseInt(this.circlesize) + parseInt(status.offsetHeight);
 
             status.innerHTML = (this.progress == 100 ? "" : this.status);
@@ -445,15 +353,15 @@ var circularProgressBarStatus = xtag.register('circular-progress-bar-status',
     At: http://stackoverflow.com/a/30144587/5686352
     Based on: mix() at less.js
 */
-function getColorBetweenColors (color1, color2, weight) 
-{
+function getColorBetweenColors(color1, color2, weight) {
     var p = weight / 100;
     var w = p * 2 - 1;
-    var w1 = (w/1+1) / 2;
+    var w1 = (w / 1 + 1) / 2;
     var w2 = 1 - w1;
-    var rgb =   [Math.round(color1[0] * w1 + color2[0] * w2),
-                    Math.round(color1[1] * w1 + color2[1] * w2),
-                    Math.round(color1[2] * w1 + color2[2] * w2)];
+    var rgb = [Math.round(color1[0] * w1 + color2[0] * w2),
+        Math.round(color1[1] * w1 + color2[1] * w2),
+        Math.round(color1[2] * w1 + color2[2] * w2)
+    ];
     return rgb;
 }
 
@@ -462,8 +370,7 @@ function getColorBetweenColors (color1, color2, weight)
     Author: Tim Down (http://stackoverflow.com/users/96100/tim-down)
     At: http://stackoverflow.com/a/5624139/5686352
 */
-function hexToRgb(hex) 
-{
+function hexToRgb(hex) {
     var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
     return result ? [
         parseInt(result[1], 16),
@@ -481,8 +388,7 @@ function GetElementInsideContainer(container, childID) {
     var elm = {};
     var elms = container.getElementsByTagName("*");
     for (var i = 0; i < elms.length; i++) {
-        if (elms[i].id === childID)
-        {
+        if (elms[i].id === childID) {
             elm = elms[i];
             break;
         }

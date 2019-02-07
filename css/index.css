@@ -32,7 +32,40 @@ canvas {
     -moz-box-align: center;
     color: #ffffff;
     text-align: center;
+
+}
+
+.w3-container {
+    width: 500px;
+    height: 200px;
+    /* margin: 50%; */
+    color: white;
+    position: absolute;
+    font-size: 100px;
+    font-family: fantasy;
+    top: 50%;
+    left: 25%;
+    text-shadow: 5px 3px 5px black;
+}
+
+#mode {
     
+    width: 100%;
+    height: 100%;
+    /* 
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0; */
+}
+
+.item {
+    visibility: hidden;
+}
+
+.goldFish {
+    visibility: hidden;
 }
 
 .bar_container {
