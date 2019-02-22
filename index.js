@@ -24,6 +24,10 @@ var zAxis = new THREE.Vector3(0, 0, 1);
 var baitBox;
 var baited;
 
+var mouse = {
+    x: 0,
+    y: 0
+};
 var LUA, RUA, LLA, RLA, LUL, RUL, LLL, RLL;
 
 var stopArm = false;
@@ -63,6 +67,8 @@ var navMode =
 
 var fishMode =
     '<div class="w3-container w3-center w3-animate-fading">Fishing Mode</div>';
+
+
 
 ///////////////////
 //BROWSER DETECTION
@@ -219,6 +225,44 @@ initBasicGraphics();
 initModels();
 
 BrowserDetection();
+
+function baitDown() {
+    baitPosDown = new TWEEN.Tween(rod2.position)
+        .to({
+            x: 0,
+            y: -2.15,
+            z: 0
+        }, 1000)
+        .easing(TWEEN.Easing.Quadratic.InOut)
+        .start();
+    baitRotDown = new TWEEN.Tween(rod2.scale)
+        .to({
+            x: 1,
+            y: 2.5,
+            z: 1
+        }, 1000)
+        .easing(TWEEN.Easing.Quadratic.InOut)
+        .start();
+}
+
+function baitUp() {
+    baitPosUp = new TWEEN.Tween(rod2.position)
+        .to({
+            x: 0,
+            y: 0,
+            z: 0
+        }, 1000)
+        .easing(TWEEN.Easing.Quadratic.InOut)
+        .start();
+    baitRotUp = new TWEEN.Tween(rod2.scale)
+        .to({
+            x: 1,
+            y: 1,
+            z: 1
+        }, 1000)
+        .easing(TWEEN.Easing.Quadratic.InOut)
+        .start();
+}
 
 function armUp() {
     armDownPos = new TWEEN.Tween(LUA.position)
@@ -564,6 +608,11 @@ function init() {
 
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 100000);
     //camera.position.set(-5, 343, 985);
+
+    fakeCamera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 100000);
+    fakeCamera.position.set(120, 137.07429351849444, 777.7491112050457);
+    fakeCamera.rotation.set(-0.0011947352738915047, 0, 0);
+    scene.add(fakeCamera);
 
     hiddenCamera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 100000);
 
@@ -977,9 +1026,9 @@ function initModels() {
         function (gltf) {
             rod2 = THREE.Object3D.prototype.clone.call(gltf.scene);
             //rod2.position.set(t3.x, t3.y + 5, t3.z);
-            rod2.scale.set(5, 5, 5);
+            rod2.scale.set(1, 1, 1);
             rod2.castShadow = true;
-            scene.add(rod2);
+            rod1.add(rod2);
         },
         function (xhr) {
             //console.log((xhr.loaded / xhr.total * 100) + '% loaded');
@@ -995,7 +1044,8 @@ function initModels() {
         function (gltf) {
             rod3 = THREE.Object3D.prototype.clone.call(gltf.scene);
             //rod3.position.set(t4.x, t4.y + 5, t4.z);
-            rod3.scale.set(5, 5, 5);
+            rod3.scale.set(1, 1, 1);
+            //rod3.position.set(120, 135, 777);
             rod3.castShadow = true;
 
 
@@ -1014,14 +1064,17 @@ function initModels() {
                 wireframe: true
             });
             baitBox = new THREE.Mesh(cubeGeometry, wireMaterial);
-            baitBox.scale.set(5, 5, 5);
+            /* baitBox.scale.set(5, 5, 5);
             baitBox.position.x = rod3.position.x;
             baitBox.position.y = rod3.position.y;
-            baitBox.position.z = rod3.position.z;
+            baitBox.position.z = rod3.position.z; */
             collidableMeshList.push(baitBox);
+            baitBox.position.z = -1.54;
+            baitBox.position.y = -0.4;
+            baitBox.position.x = -0.15;
 
-            scene.add(rod3);
-            scene.add(baitBox);
+            rod3.add(baitBox);
+            rod2.add(rod3);
         },
         function (xhr) {
             //console.log((xhr.loaded / xhr.total * 100) + '% loaded');
@@ -1077,6 +1130,33 @@ function initModels() {
         }
     );
 }
+
+///////////////////
+//BAIT MENU MOVEMENT
+///////////////////
+
+/* document.addEventListener('mousemove', onMouseMove, false);
+
+function onMouseMove(event) {
+
+    // Update the mouse variable
+    event.preventDefault();
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+    // Make the sphere follow the mouse
+    var vector = new THREE.Vector3(mouse.x, mouse.y, 100);
+    vector.unproject(fakeCamera);
+    var dir = vector.sub(fakeCamera.position).normalize();
+    var dist = -fakeCamera.position.z / dir.z;
+    var pos = fakeCamera.position.clone().add(dir.multiplyScalar(dist));
+    rod3.position.x = pos.x;
+    rod3.position.y = pos.y;
+    rod3.position.z = pos.z;
+
+    // Make the sphere follow the mouse
+    //	mouseMesh.position.set(event.clientX, event.clientY, 0);
+}; */
 ///////////////////
 //FISH MOVEMENT
 ///////////////////
@@ -1326,14 +1406,20 @@ var animate = function () {
         if (!modality) {
             if (!stopArm) {
                 if (rodInHand) {
-                    stopArm = true;
-                    armUp();
+                    baitUp();
+                    setTimeout(function () {
+                        stopArm = true;
+                        armUp();
+                    }, 1000);
+
                     setTimeout(function () {
                         body.add(rod1);
                         rod1.rotation.x = 0;
                         rod1.rotation.y = Math.PI / 2;
                         rod1.position.x = 1;
-                    }, 1000);
+                        rod1.position.y = -1;
+                        rod1.position.z = 1;
+                    }, 2000);
 
                     setTimeout(function () {
                         rodInHand = !rodInHand;
@@ -1344,11 +1430,14 @@ var animate = function () {
                     armUp();
                     setTimeout(function () {
                         LUA.add(rod1);
-                        rod1.rotation.x = -Math.PI / 2;
+                        rod1.rotation.x = -Math.PI / 4;
                         rod1.rotation.y = 0;
                         rod1.position.x = 0;
+                        rod1.position.z = -1;
+                        rod1.position.y = -4;
                     }, 1000);
                     setTimeout(function () {
+                        baitDown();
                         rodInHand = !rodInHand;
                         stopArm = false;
                     }, 2000);
