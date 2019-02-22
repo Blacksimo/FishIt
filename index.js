@@ -1010,7 +1010,6 @@ function initModels() {
             rod1.position.x = 1;
             rod1.position.y = -1;
             rod1.castShadow = true;
-            body.add(rod1);
         },
         function (xhr) {
             //console.log((xhr.loaded / xhr.total * 100) + '% loaded');
@@ -1028,7 +1027,6 @@ function initModels() {
             //rod2.position.set(t3.x, t3.y + 5, t3.z);
             rod2.scale.set(1, 1, 1);
             rod2.castShadow = true;
-            rod1.add(rod2);
         },
         function (xhr) {
             //console.log((xhr.loaded / xhr.total * 100) + '% loaded');
@@ -1073,8 +1071,6 @@ function initModels() {
             baitBox.position.y = -0.4;
             baitBox.position.x = -0.15;
 
-            rod3.add(baitBox);
-            rod2.add(rod3);
         },
         function (xhr) {
             //console.log((xhr.loaded / xhr.total * 100) + '% loaded');
@@ -1129,7 +1125,18 @@ function initModels() {
             console.log('An error happened');
         }
     );
+    setTimeout(function() {
+        body.add(rod1);
+        rod1.add(rod2);
+        rod3.add(baitBox);
+        rod2.add(rod3);
+    }, 10000);
+    
 }
+
+
+
+
 
 ///////////////////
 //BAIT MENU MOVEMENT
